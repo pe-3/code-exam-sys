@@ -1,5 +1,4 @@
-
-export function ArrowUpIcon(props) {
+export function ArrowUpIcon(props: { [x: string]: any }) {
   return (
     <svg
       {...props}
@@ -20,7 +19,7 @@ export function ArrowUpIcon(props) {
 }
 
 
-export function CircleIcon(props) {
+export function CircleIcon(props: { [x: string]: any }) {
   return (
     <svg
       {...props}
@@ -40,7 +39,7 @@ export function CircleIcon(props) {
 }
 
 
-export function LayoutDashboardIcon(props) {
+export function LayoutDashboardIcon(props: { [x: string]: any }) {
   return (
     <svg
       {...props}
@@ -63,7 +62,7 @@ export function LayoutDashboardIcon(props) {
 }
 
 
-export function LogOutIcon(props) {
+export function LogOutIcon(props: { [x: string]: any }) {
   return (
     <svg
       {...props}
@@ -85,7 +84,7 @@ export function LogOutIcon(props) {
 }
 
 
-export function MailboxIcon(props) {
+export function MailboxIcon(props: { [x: string]: any }) {
   return (
     <svg
       {...props}
@@ -108,7 +107,7 @@ export function MailboxIcon(props) {
 }
 
 
-export function StarIcon(props) {
+export function StarIcon(props: { [x: string]: any }) {
   return (
     <svg
       {...props}
@@ -128,7 +127,7 @@ export function StarIcon(props) {
 }
 
 
-export function UserIcon(props) {
+export function UserIcon(props: { [x: string]: any }) {
   return (
     <svg
       {...props}
@@ -148,9 +147,7 @@ export function UserIcon(props) {
   )
 }
 
-
-
-export function CogIcon(props) {
+export function CogIcon(props: { [x: string]: any }) {
   return (
     <svg
       {...props}
@@ -183,7 +180,7 @@ export function CogIcon(props) {
 }
 
 
-export function MenuIcon(props) {
+export function MenuIcon(props: { [x: string]: any }) {
   return (
     <svg
       {...props}
@@ -205,7 +202,7 @@ export function MenuIcon(props) {
 }
 
 
-export function MoonIcon(props) {
+export function MoonIcon(props: { [x: string]: any }) {
   return (
     <svg
       {...props}
@@ -225,7 +222,7 @@ export function MoonIcon(props) {
 }
 
 
-export function SearchIcon(props) {
+export function SearchIcon(props: { [x: string]: any }) {
   return (
     <svg
       {...props}
