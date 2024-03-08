@@ -1,0 +1,21 @@
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    nickname VARCHAR(100) NOT NULL,
+    avatar_url VARCHAR(255) NULL,
+    first_name VARCHAR(100) NULL,
+    last_name VARCHAR(100) NULL,
+    birth_date DATE NULL,
+    gender ENUM('male', 'female', 'other') NULL,
+    profile_picture_url VARCHAR(255) NULL,
+    bio TEXT NULL,
+    phone VARCHAR(20) NULL,
+    country VARCHAR(50) NULL,
+    city VARCHAR(50) NULL,
+    status ENUM('active', 'inactive', 'banned') NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    role TINYINT NOT NULL DEFAULT 0 COMMENT '0: Normal User, 1: VIP, 2: Admin'
+);

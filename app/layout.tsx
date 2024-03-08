@@ -1,7 +1,7 @@
 import './globals.css'
 
 export const metadata = {
-  title: '在线代码考试平台',
+  title: '码测：在线代码考试平台',
   description: '一个在线代码考试平台，可以用来发布考试，进行考试，管理考试，成绩发布与查看',
 }
 

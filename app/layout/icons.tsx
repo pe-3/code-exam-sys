@@ -18,7 +18,6 @@ export function ArrowUpIcon(props: { [x: string]: any }) {
   )
 }
 
-
 export function CircleIcon(props: { [x: string]: any }) {
   return (
     <svg
@@ -37,7 +36,6 @@ export function CircleIcon(props: { [x: string]: any }) {
     </svg>
   )
 }
-
 
 export function LayoutDashboardIcon(props: { [x: string]: any }) {
   return (
@@ -61,7 +59,6 @@ export function LayoutDashboardIcon(props: { [x: string]: any }) {
   )
 }
 
-
 export function LogOutIcon(props: { [x: string]: any }) {
   return (
     <svg
@@ -82,7 +79,6 @@ export function LogOutIcon(props: { [x: string]: any }) {
     </svg>
   )
 }
-
 
 export function MailboxIcon(props: { [x: string]: any }) {
   return (
@@ -106,7 +102,6 @@ export function MailboxIcon(props: { [x: string]: any }) {
   )
 }
 
-
 export function StarIcon(props: { [x: string]: any }) {
   return (
     <svg
@@ -125,7 +120,6 @@ export function StarIcon(props: { [x: string]: any }) {
     </svg>
   )
 }
-
 
 export function UserIcon(props: { [x: string]: any }) {
   return (
@@ -179,7 +173,6 @@ export function CogIcon(props: { [x: string]: any }) {
   )
 }
 
-
 export function MenuIcon(props: { [x: string]: any }) {
   return (
     <svg
@@ -201,7 +194,6 @@ export function MenuIcon(props: { [x: string]: any }) {
   )
 }
 
-
 export function MoonIcon(props: { [x: string]: any }) {
   return (
     <svg
@@ -220,7 +212,6 @@ export function MoonIcon(props: { [x: string]: any }) {
     </svg>
   )
 }
-
 
 export function SearchIcon(props: { [x: string]: any }) {
   return (
