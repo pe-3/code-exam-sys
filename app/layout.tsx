@@ -1,4 +1,5 @@
 import './globals.css'
+import { Providers } from './chakra-provider'
 
 export const metadata = {
   title: '码测：在线代码考试平台',
@@ -12,7 +13,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className='overflow-hidden h-screen'>{children}</body>
+      <body className='overflow-scroll h-screen'>
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }
