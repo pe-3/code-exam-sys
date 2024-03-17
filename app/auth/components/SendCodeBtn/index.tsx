@@ -3,20 +3,16 @@
 import React, { useState } from 'react';
 import { useCountdown } from "@/hooks";
 import { Button } from '@/components/ui/button';
-import { setItem } from '@/storage';
-import { SetVisitor } from '@/app/visitor';
+import { setItemInVisitor } from '@/storage';
 
-export const CODE_MAIL_COUNT_DOWN = 'CODE_MAIL_COUNT_DOWN';
+const CODE_MAIL_COUNT_DOWN = 'CODE_MAIL_COUNT_DOWN';
 const useCountDownStorge:  (
   initDate: Date
 ) => [Date, (date: Date) => void] = (initDate) => {
   const [date, setDate] = useState(initDate ? new Date(initDate) : new Date());
 
   return [date, async function(date: Date) {
-    const visitor = await SetVisitor();
-    console.log(visitor);
-    
-    setItem?.(`${visitor}/CODE_MAIL_COUNT_DOWN`, date);
+    setItemInVisitor?.('CODE_MAIL_COUNT_DOWN', date);
     setDate(date);
   }];
 }

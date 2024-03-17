@@ -1,5 +1,6 @@
 'use server';
 import Redis, { RedisKey } from 'ioredis';
+import { GetVisitor, SetVisitor } from '@/app/visitor';
 
 const redis = new Redis({
   host: 'localhost',
@@ -30,4 +31,22 @@ export const removeItem = async (key: RedisKey) => {
 
 export const clear = async () => {
   await redis.flushdb(); // 警告：这个操作会清空整个数据库
+}
+
+export const getItemInVisitor = async (key: RedisKey) => {
+  const visitor = await GetVisitor();
+  const item = await getItem(`${visitor}/${key}`);
+  return item;
+}
+
+export const setItemInVisitor = async (key: RedisKey, value: any) => {
+  const visitor = await SetVisitor();
+  console.log(visitor);
+
+  await setItem(`${visitor}/${key}`, value);
+}
+
+export const removeItemInVisitor = async (key: RedisKey) => { 
+  const visitor = GetVisitor();
+  await removeItem(`${visitor}/${key}`);
 }

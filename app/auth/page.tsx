@@ -2,12 +2,10 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { CodeOpt } from "./components/CodeOpt";
 import SendCodeBtn from "./components/SendCodeBtn";
-import { getItem } from "@/storage";
-import { GetVisitor } from "../visitor";
+import { getItemInVisitor } from "@/storage";
 
 export default async function Component() {
-  const visitor = await GetVisitor();
-  const initDate = await getItem(`${visitor}/CODE_MAIL_COUNT_DOWN`);
+  const initDate = await getItemInVisitor('CODE_MAIL_COUNT_DOWN');
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
