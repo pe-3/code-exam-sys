@@ -77,7 +77,7 @@ export default function HomeComponent() {
 
 // SVG图标组件和SchoolIcon组件省略，保持不变
 
-function ScalingIcon(props) {
+function ScalingIcon(props: any) {
   return (
     <svg
       {...props}
@@ -100,7 +100,7 @@ function ScalingIcon(props) {
 }
 
 
-function SchoolIcon(props) {
+function SchoolIcon(props: any) {
   return (
     <svg
       {...props}

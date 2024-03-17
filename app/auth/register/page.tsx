@@ -7,7 +7,7 @@ import { createUserByFormData } from "@/sql/user/actions";
 import { useRouter } from "next/navigation";
 import { useToast } from "@chakra-ui/react";
 import UiToast from "../components/Toast";
-import { EToastType } from "../components/Toast_v2";
+import { EToastType } from "../components/Toast";
 
 export default function RegisterComponent() {
   const router = useRouter();

@@ -1,5 +1,6 @@
 import './globals.css'
 import { Providers } from './chakra-provider'
+import { cookies } from 'next/headers'
 
 export const metadata = {
   title: '码测：在线代码考试平台',

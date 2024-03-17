@@ -1,25 +1,46 @@
-// SendVerificationCodeButton.js
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useCountdown } from "@/hooks";
 import { Button } from '@/components/ui/button';
-import storage from '@/storage';
+import { setItem } from '@/storage';
+import { SetVisitor } from '@/app/visitor';
 
-const CODE_MAIL_COUNT_DOWN = 'CODE_MAIL_COUNT_DOWN';
+export const CODE_MAIL_COUNT_DOWN = 'CODE_MAIL_COUNT_DOWN';
+const useCountDownStorge:  (
+  initDate: Date
+) => [Date, (date: Date) => void] = (initDate) => {
+  const [date, setDate] = useState(initDate ? new Date(initDate) : new Date());
 
-const SendVerificationCodeButton = ({ sendVerificationCode } : { sendVerificationCode: (...args: any[]) => Promise<any> }) => {
-  const [date, setDate] = useState(storage.getItem(CODE_MAIL_COUNT_DOWN) || new Date());
+  return [date, async function(date: Date) {
+    const visitor = await SetVisitor();
+    console.log(visitor);
+    
+    setItem?.(`${visitor}/CODE_MAIL_COUNT_DOWN`, date);
+    setDate(date);
+  }];
+}
+
+const  sendVerificationCode: (...args: any[]) => Promise<any> = async () => true
+     
+const SendVerificationCodeButton = (
+  {
+    initDate
+  }: {
+    initDate: Date;
+  }
+) => {
+  const [date, setDate] = useCountDownStorge(initDate);
   const { seconds } = useCountdown(date);
 
-  const handleClick = async () => {
+  const handleClick = async (e: any) => {
+    e?.preventDefault();
     const isSent = await sendVerificationCode();
     if (isSent) {
-      const date = new Date(Date.now() + 60 * 1000);
-      storage.setItem(CODE_MAIL_COUNT_DOWN, date);
-      setDate(date);
+      setDate(new Date(Date.now() + 60 * 1000));
     }
   };
+
   return (<Button disabled={seconds > 0} className="flex-1 ml-4" onClick={handleClick}>{ seconds > 0 ?  `剩余 ${seconds}s` : '发送' }</Button>)
 };
 
