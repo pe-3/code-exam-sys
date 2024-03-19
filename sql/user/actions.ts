@@ -3,8 +3,11 @@
 import { z } from 'zod'
 import { UserModel, UserRole } from './user.type';
 import { generateSalt, hashPassword, validatePassword } from '@/utils/hash';
-import { createUser, getUserByUsername } from './sql';
+import { createUser, getUserByEmail, getUserByUsername, updateUser } from './sql';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
+import { verifyInputCode } from '@/app/auth/components/SendCodeBtn/sendVerificationCode';
+import { getTokenFromCookie } from '@/app/token';
+import { getItemInVisitor } from '@/storage';
 
 const RegisterSchema = z.object({
   username: z.string().min(1, "Username is required and cannot be empty"),
@@ -90,4 +93,76 @@ export const loginUserByFormData = async (formData: FormData) => {
 
   // 如果证通过，返回用户信息
   return user;
+};
+
+// 验证码
+export const loginOrCreateByCode = async (formData: FormData) => {
+  const res: {
+    isVerifyed: boolean;
+    isCreated: boolean;
+    isLogined: boolean;
+    user: UserModel | null;
+  } = {
+    isVerifyed: false,
+    isCreated: false,
+    isLogined: false,
+    user: null
+  };
+  const email = formData.get('email');
+  const code = formData.get('code');
+
+  try {
+    // 1. 验证码验证
+    const isCodeVerifyed = await verifyInputCode(email as string, code as string);
+    res.isVerifyed = isCodeVerifyed;
+    if (!isCodeVerifyed) {
+      return res;
+    }
+
+    // 2. 登录验证，没用户，走注册
+    const [user] = await getUserByEmail(email as string) as RowDataPacket[] as UserModel[];
+    if(user) {
+      res.isLogined = true;
+      res.user = user;
+      return res;
+    }
+
+    // 3. 预设 username 和 password
+    email && formData.set('username', email as string);
+    code && formData.set('password', code as string);
+
+    // 4. 进行注册，后再登录验证数据库
+    const isCreated = await createUserByFormData(formData);
+    if(isCreated) {
+      res.isCreated = true;
+      res.user = await loginUserByFormData(formData);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+
+  // 5. 返回结果对象
+  return res;
+}
+
+//选取角色
+export const selectRole = async ({
+  role,
+  roleId
+}: {
+  role: UserRole;
+  roleId: string;
+}) => { 
+  // 1. 通过 cookies 拿到 token
+  const salt = await getItemInVisitor('TOKEN_SALT');
+  const tokenPayload = await getTokenFromCookie(salt);
+
+  const { id } = tokenPayload as any || {};
+
+  const isAffected = await updateUser(id, {
+    role,
+    role_id: roleId
+  });
+
+  return isAffected;
 };

@@ -13,7 +13,7 @@ export default function UiToast({
   onView
 } : {
   title: string,
-  description: string,
+  description: string | React.ReactNode,
   type: EToastType,
   view?: boolean,
   onView?: () => void
@@ -29,9 +29,9 @@ export default function UiToast({
               <div className="flex items-center gap-4">
                 {/* <BellIcon className="h-6 w-6 flex-shrink-0" /> */}
                 <Icon className={ToastIcons[type][1]} />
-                <div className="flex-1 grid gap-2 text-sm">
-                  <p className="font-medium">{title}</p>
-                  <p className="text-sm leading-none">{description}</p>
+                <div className="flex-1 grid gap-2">
+                  <h5 className="font-medium">{title}</h5>
+                  <p className="text-sm leading-none text-sm">{description}</p>
                 </div>
                 {view && <Button size="sm" variant="outline" onClick={onView}>
                   View

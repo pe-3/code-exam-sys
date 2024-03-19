@@ -1,0 +1,9 @@
+CREATE TABLE Exams (
+    ExamID INT PRIMARY KEY,
+    ExamName VARCHAR(255) NOT NULL,
+    Subject VARCHAR(255) NOT NULL,
+    StartTime TIMESTAMP NOT NULL,
+    EndTime TIMESTAMP NOT NULL,
+    TotalScore INT,
+    IsCancelled BOOLEAN DEFAULT FALSE
+);

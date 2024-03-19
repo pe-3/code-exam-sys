@@ -49,14 +49,7 @@ export default function HomeComponent() {
             <button
               className="bg-black text-white py-2 px-4 rounded mr-4 hover:bg-gray-800 transition-colors duration-200"
             >
-              登录
-            </button>
-          </Link>
-          <Link href='/auth/register'>
-            <button
-              className="bg-white text-black py-2 px-4 rounded mr-4 border border-gray-800 hover:bg-gray-200 transition-colors duration-200"
-            >
-              注册
+              登录/注册
             </button>
           </Link>
           <Link href='/auth/register'>

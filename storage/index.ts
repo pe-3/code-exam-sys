@@ -26,7 +26,8 @@ export const getItem = async (key: RedisKey) => {
 }
 
 export const removeItem = async (key: RedisKey) => { 
-  await redis.del(key);
+  const number = await redis.del(key);
+  return number;
 }
 
 export const clear = async () => {
@@ -41,12 +42,10 @@ export const getItemInVisitor = async (key: RedisKey) => {
 
 export const setItemInVisitor = async (key: RedisKey, value: any) => {
   const visitor = await SetVisitor();
-  console.log(visitor);
-
   await setItem(`${visitor}/${key}`, value);
 }
 
 export const removeItemInVisitor = async (key: RedisKey) => { 
-  const visitor = GetVisitor();
+  const visitor = await GetVisitor();
   await removeItem(`${visitor}/${key}`);
 }

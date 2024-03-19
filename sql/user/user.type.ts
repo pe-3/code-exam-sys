@@ -3,9 +3,10 @@
  */
 
 export enum UserRole {
-  Student = 0,
-  Teacher = 1,
-  Admin = 2
+  Unset = 0,
+  Student = 1,
+  Teacher = 2,
+  Admin = 3
 }
 
 // 不可更新的属性
@@ -17,23 +18,24 @@ export interface UserImmutableModel {
 
 // 可更新的属性
 export interface UserMutableModel {
-  password: string;
-  salt: string;
-  email: string;
-  nickname: string;
-  avatar_url: string | null;
-  first_name: string | null;
-  last_name: string | null;
-  birth_date: Date | null;
-  gender: 'male' | 'female' | 'other' | null;
-  profile_picture_url: string | null;
-  bio: string | null;
-  phone: string | null;
-  country: string | null;
-  city: string | null;
-  status: 'active' | 'inactive' | 'banned';
-  updated_at: Date; // 更新时间可以更改，随着用户信息的更新而变化
-  role: UserRole;
+  password?: string;
+  salt?: string;
+  email?: string;
+  nickname?: string;
+  avatar_url?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  birth_date?: Date | null;
+  gender?: 'male' | 'female' | 'other' | null;
+  profile_picture_url?: string | null;
+  bio?: string | null;
+  phone?: string | null;
+  country?: string | null;
+  city?: string | null;
+  status?: 'active' | 'inactive' | 'banned';
+  updated_at?: Date; // 更新时间可以更改，随着用户信息的更新而变化
+  role?: UserRole;
+  role_id?: String;
 }
 
 // 完整的 UserModel，由不可更新和可更新属性组合

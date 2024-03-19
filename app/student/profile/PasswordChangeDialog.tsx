@@ -19,7 +19,6 @@ const PasswordChangeDialog = ({ open, onClose }) => {
     // 比如验证新密码和确认密码是否匹配
     // 然后调用API来更新密码
     
-    console.log(passwords);
     // 最终，关闭对话框
     onClose();
   };

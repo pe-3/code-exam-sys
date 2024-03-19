@@ -1,5 +1,6 @@
 'use server';
 
+import { ResultSetHeader } from "mysql2";
 import pool from "../pool";
 import { UserModel, UserMutableModel } from "./user.type";
 
@@ -48,12 +49,23 @@ export const getUserByUsername = async (username: string) => {
   }
 };
 
+// Read - 根据 Email 查找用户
+export const getUserByEmail = async (email: string) => { 
+  const sql = 'SELECT * FROM users WHERE email = ?';
+  try {
+    const [users] = await pool.query(sql, [email]);
+    return users;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Update - 更新用户信息
 export const updateUser = async (userId: number, updateData: UserMutableModel) => {
   const sql = `UPDATE users SET ? WHERE id = ?`;
   try {
-    const [result] = await pool.query(sql, [updateData, userId]);
-    return result;
+    const [result] = await pool.query(sql, [updateData, userId]) as ResultSetHeader[];
+    return result?.affectedRows === 1;
   } catch (error) {
     throw error;
   }

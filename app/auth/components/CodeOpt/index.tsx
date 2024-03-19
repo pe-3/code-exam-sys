@@ -14,11 +14,16 @@ export function CodeOpt({
   onChange?: (newValue: string) => void;
   name: string;
 }) {
+  const [value, setValue] = React.useState('');
+
   return (
     <>
-      <input type="text" name={name} style={{ display: 'none' }} />
+      <input value={value} onChange={() => {}} type="text" name={name} style={{ display: 'none' }} />
       <InputOTP
-        onChange={onChange}
+        onChange={(value) => {
+          onChange?.(value);
+          setValue(value);
+        }}
         maxLength={6}
         render={({ slots }) => (
           <InputOTPGroup className="gap-2">
