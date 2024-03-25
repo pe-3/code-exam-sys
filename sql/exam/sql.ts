@@ -1,19 +1,13 @@
-// exam.repository.ts
+'use server';
+
 import { RowDataPacket } from 'mysql2';
 import pool from '../pool'; // replace with actual file path
 import { ExamModel } from './exam.type';
 
-export async function getAllExams(): Promise<ExamModel []> {
-  const [rows] = await pool.execute<RowDataPacket[]>('SELECT * FROM Exams');
-  return rows.map(row => ({
-    examId: row.ExamID,
-    examName: row.ExamName,
-    subject: row.Subject,
-    startTime: row.StartTime,
-    endTime: row.EndTime,
-    totalScore: row.TotalScore,
-    isCancelled: row.IsCancelled === 1
-  }));
+export async function getAllExams(): Promise<ExamModel[]> {
+  const sql = 'SELECT * FROM Exams ORDER BY StartTime DESC';
+  const [rows] = await pool.execute<RowDataPacket[]>(sql);
+  return rows as ExamModel[];
 }
 
 export async function getExamById(examId: number): Promise<ExamModel | null> {
@@ -21,26 +15,12 @@ export async function getExamById(examId: number): Promise<ExamModel | null> {
   if (rows.length === 0) return null;
 
   const row = rows[0];
-  return {
-    examId: row.ExamID,
-    examName: row.ExamName,
-    subject: row.Subject,
-    startTime: row.StartTime,
-    endTime: row.EndTime,
-    totalScore: row.TotalScore,
-    isCancelled: row.IsCancelled === 1
-  };
+  return row as ExamModel;
 }
 
-export async function createExam(exam: Omit<ExamModel, 'examId'>): Promise<void> {
-  await pool.execute('INSERT INTO Exams (ExamName, Subject, StartTime, EndTime, TotalScore, IsCancelled) VALUES (?, ?, ?, ?, ?, ?)', [
-    exam.examName,
-    exam.subject,
-    exam.startTime,
-    exam.endTime,
-    exam.totalScore,
-    exam.isCancelled ? 1 : 0
-  ]);
+export async function createExam(exam: Omit<ExamModel, 'examId'>): Promise<any> {
+  const res = await pool.query('insert into exams SET ?', exam);
+  return res;
 }
 
 export async function updateExam(exam: ExamModel): Promise<void> {

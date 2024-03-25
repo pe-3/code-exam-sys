@@ -92,7 +92,7 @@ const UserCard = ({ role, imageSrc, placeholder }: {
     }
   }
   return (
-    <div className="flex flex-col items-center space-y-2">
+    <div className="flex items-center m-2" style={{ width: '280px' }}>
       <Card className="w-full max-w-sm">
         <CardHeader className="grid gap-2 place-content-center">
           <Image
@@ -122,7 +122,7 @@ const UserCard = ({ role, imageSrc, placeholder }: {
 // 在主组件中使用 UserCard
 export default function Component() {
   return (
-    <div className="flex justify-center items-center min-h-screen space-x-4">
+    <div className="flex justify-center items-center min-h-screen flex-wrap p-6">
       <UserCard role="学生" imageSrc="/student.png" placeholder="学生ID" />
       <UserCard role="老师" imageSrc="/teacher.png" placeholder="授权码" />
       <UserCard role="管理员" imageSrc="/admin.png" placeholder="授权码" />

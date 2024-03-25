@@ -14,12 +14,6 @@ export default function Component() {
     <div className="bg-white p-8">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">成绩总览</h1>
-        <div className="flex space-x-4">
-          <SearchIcon className="text-gray-500" />
-          <BellIcon className="text-gray-500" />
-          <UserCircleIcon className="text-gray-500" />
-          <MenuIcon className="text-gray-500" />
-        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <Card className="bg-white p-4 shadow-lg rounded-lg flex flex-col items-center justify-center">

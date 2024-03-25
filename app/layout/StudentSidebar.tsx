@@ -26,21 +26,6 @@ const menuList = [
     name: '成绩汇总',
     icon: StarIcon,
     href: '/student/grades'
-  },
-  {
-    name: '我的课程',
-    icon: MailboxIcon,
-    href: '/student/courses'
-  },
-  {
-    name: '个人资料',
-    icon: UserIcon,
-    href: '/student/profile'
-  },
-  {
-    name: '帮助与支持',
-    icon: CircleIcon,
-    href: '/student/help'
   }
 ];
 

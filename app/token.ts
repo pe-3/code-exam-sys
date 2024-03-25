@@ -8,6 +8,9 @@ const TOKEN_KEY = 'TOKEN_KEY';
 
 export async function getTokenFromCookie(salt: string) {
   const token = cookies().get(TOKEN_KEY)?.value || '';
+  if (!token) {
+    return null;
+  }
   const tokenPayload = jwt.verify(token, salt);
   const { expire } = tokenPayload as any || {};
 

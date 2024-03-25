@@ -1,9 +1,9 @@
 'use server';
 
 import { z } from 'zod'
-import { UserModel, UserRole } from './user.type';
+import { UserModel, UserMutableModel, UserRole } from './user.type';
 import { generateSalt, hashPassword, validatePassword } from '@/utils/hash';
-import { createUser, getUserByEmail, getUserByUsername, updateUser } from './sql';
+import { createUser, getUserByEmail, getUserById, getUserByUsername, updateUser } from './sql';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { verifyInputCode } from '@/app/auth/components/SendCodeBtn/sendVerificationCode';
 import { getTokenFromCookie } from '@/app/token';
@@ -41,16 +41,17 @@ export const createUserByFormData = async (formData: FormData) => {
     parsedData[key] = formData.get(key);
   }
   // 使用 Zod 解析和验证 FormData
-  const createdUserDate = RegisterSchema.parse(parsedData);
+  const createdUserData = RegisterSchema.parse(parsedData);
   // 首先生成一个盐值
   const salt = generateSalt();
   // 使用盐值来哈希密码
   const hashedPassword = hashPassword(parsedData.password, salt);
   // 设置一些服务端处理的属性
   const userData: UserModel = ({
-    ...createdUserDate,
+    ...createdUserData,
     password: hashedPassword,
     created_at: new Date(),
+    updated_at: new Date(),
     salt,
     status: 'inactive',
     role: parsedData.role || UserRole.Student
@@ -145,7 +146,7 @@ export const loginOrCreateByCode = async (formData: FormData) => {
   return res;
 }
 
-//选取角色
+// 选取角色
 export const selectRole = async ({
   role,
   roleId
@@ -166,3 +167,57 @@ export const selectRole = async ({
 
   return isAffected;
 };
+
+// 拿到用户信息
+export const getUserInfo = async () => { 
+  // 1. 通过 cookies 拿到 token
+  const salt = await getItemInVisitor('TOKEN_SALT');
+  const tokenPayload = await getTokenFromCookie(salt);
+  const { id } = tokenPayload as any || {};
+
+  const [user] = await getUserById(id) as RowDataPacket[] || [];
+
+  // 对 user 进行敏感字段过滤
+  const {
+    password,
+    salt: _salt,
+    id: _id,
+    ...rest
+  } = user || {};
+
+  return rest;
+}
+
+// 更新用户信息
+const updateSchema = z.object({
+  nickname: z.string().optional().nullable(),
+  avatar_url: z.string().optional().nullable(),
+  first_name: z.string().optional().nullable(),
+  last_name: z.string().optional().nullable(),
+  birth_date: z.string().optional().nullable(),
+  gender: z.enum(["male", "female", "other"]).optional().nullable(),
+  profile_picture_url: z.string().optional().nullable(),
+  bio: z.string().max(500).optional().nullable(),
+  phone: z.string().optional().nullable(),
+  country: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+});
+
+export const updateUserInfo = async (formData: FormData) => { 
+  // 1. 通过 cookies 拿到 token
+  const salt = await getItemInVisitor('TOKEN_SALT');
+  const tokenPayload = await getTokenFromCookie(salt);
+  const { id } = tokenPayload as any || {};
+
+  // 2. 解析字段
+  const rawData: { [x:string]: any } = {};
+  for(let key in updateSchema.shape) {
+    rawData[key] = formData.get(key);
+  };
+
+
+  const parsedData = updateSchema.parse(rawData);
+  const isAffected = await updateUser(id, parsedData as UserMutableModel);
+
+  return isAffected;
+}

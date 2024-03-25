@@ -4,6 +4,5 @@ CREATE TABLE Exams (
     Subject VARCHAR(255) NOT NULL,
     StartTime TIMESTAMP NOT NULL,
     EndTime TIMESTAMP NOT NULL,
-    TotalScore INT,
-    IsCancelled BOOLEAN DEFAULT FALSE
+    Status INT(1) NOT NULL ZEROFILL COMMENT '0:未编辑 1:未发布 2:未开始 3:进行中 4:已结束',
 );

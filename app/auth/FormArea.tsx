@@ -8,7 +8,8 @@ import { loginOrCreateByCode } from "@/sql/user/actions";
 import { useToast } from "@chakra-ui/react";
 import UiToast, { EToastType } from "./components/Toast";
 import { setTokenInCookie } from "../token";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 const FormArea = ({
   initDate
@@ -69,20 +70,7 @@ const FormArea = ({
       })
     }
 
-    user && setTokenInCookie(user);
-
-
-    if (isLogined) {
-      toast({
-        render: () => (
-          <UiToast
-            title="登录成功"
-            description="欢迎回来"
-            type={EToastType.Success}
-          />
-        )
-      });
-    }
+    user && (await setTokenInCookie(user));
 
     if (isCreated) {
       toast({
@@ -96,7 +84,7 @@ const FormArea = ({
       });
     }
 
-    const { role } = user || {};
+    const { role, nickname } = user || {};
     
     if (!role) {
       router.push('/role');
@@ -112,7 +100,55 @@ const FormArea = ({
       })
       return;
     }
+
+    if (!nickname) {
+      console.log('触发了');
+      router.push('/profile');
+      toast ({
+        // 完善信息提示
+        render: () => (
+          <UiToast
+            title="完善信息"
+            description="请完善你的信息"
+            type={EToastType.Success}
+          />
+        )
+      });
+      return;
+    }
+
+    if (isLogined) {
+      toast({
+        render: () => (
+          <UiToast
+            title="登录成功"
+            description="欢迎回来"
+            type={EToastType.Success}
+          />
+        )
+      });
+    }
   }
+
+  // 如果是重定向过来，提醒用户登录过期，请重新登录
+  const search = useSearchParams();
+
+  useEffect(() => {
+    const expired = search.get('expired');
+    if (expired) {
+      toast({
+        render: () => (
+          <UiToast
+            title="登录过期"
+            description="私密马赛，请重新登录!!!!"
+            type={EToastType.Error}
+          />
+        )
+      });
+      // 替换掉 expired
+      router.replace('/auth');
+    }
+  }, [])
 
   return (
     <form className="mt-6" onSubmit={handleSubmit}>
