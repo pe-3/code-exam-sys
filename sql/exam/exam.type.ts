@@ -7,6 +7,16 @@ export enum ExamStatus {
   FINISHED
 }
 
+export interface ExamModel {
+  ExamId: number;
+  ExamName: string;
+  Subject: string;
+  StartTime: string;
+  EndTime: string;
+  TotalScore: number;
+  Status: ExamStatus
+};
+
 // 状态文案映射对象
 export const ExamStatusDescriptions: { [key in ExamStatus]: string } = {
   [ExamStatus.UNEDITED]: "未编辑",
@@ -23,15 +33,4 @@ export const ExamStatusColors: { [key in ExamStatus]: string } = {
   [ExamStatus.NOT_STARTED]: "#0099ff", // 蓝色，表示未开始
   [ExamStatus.IN_PROGRESS]: "#33cc33", // 绿色，表示进行中
   [ExamStatus.FINISHED]: "#ff3333" // 红色，表示已结束
-};
-
-
-export interface ExamModel {
-  ExamId: number;
-  ExamName: string;
-  Subject: string;
-  StartTime: string;
-  EndTime: string;
-  TotalScore: number;
-  Status: ExamStatus
 };

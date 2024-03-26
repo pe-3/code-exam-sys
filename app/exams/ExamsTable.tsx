@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { ExamModel, ExamStatus, ExamStatusColors, ExamStatusDescriptions } from "@/sql/exam/exam.type"
-import { number } from "zod";
+import moment from 'moment'
 
 export const ExamStatusButton: { [key in ExamStatus]: React.FC } = {
   [ExamStatus.UNEDITED]: () => (
@@ -27,7 +27,7 @@ export default function ExamsTable({
   exams: ExamModel[]
 }) {
   return (
-    <div className="h-[600px] overflow-y-auto relative">
+    <div className="h-[550px] overflow-y-auto relative">
       <Table>
         <TableHeader className="sticky top-0 bg-white z-10">
           <TableRow className="sticky top-0 bg-white z-10">
@@ -41,15 +41,15 @@ export default function ExamsTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {exams.map((exam) => (
-            <TableRow key={exam.ExamId}>
+          {exams.map((exam, index) => (
+            <TableRow key={index}>
               <TableCell>{exam.ExamName}</TableCell>
               <TableCell>{exam.Subject}</TableCell>
-              <TableCell>{new Date(exam.StartTime * 1000).toDateString()}</TableCell>
+              <TableCell>{moment(new Date(exam.StartTime * 1000)).format('YYYY-MM-DD HH:mm')}</TableCell>
               <TableCell>{exam.EndTime}</TableCell>
               <TableCell>{exam.TotalScore}</TableCell>
               <TableCell style={{ color: ExamStatusColors[exam.Status] }}>{ExamStatusDescriptions[exam.Status]}</TableCell>
-              <TableCell><Button size='sm' className="mr-4" variant='outline'>回滚</Button>{ExamStatusButton[exam.Status]({})}</TableCell>
+              <TableCell><Button size='sm' className="mr-4" variant='outline' disabled={exam.Status === ExamStatus.UNEDITED}>回滚</Button>{ExamStatusButton[exam.Status]({})}</TableCell>
             </TableRow>
           ))}
         </TableBody>

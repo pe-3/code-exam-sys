@@ -1,7 +1,8 @@
 'use server';
 
-import { z } from 'zod';
-import { createExam } from './sql';
+import { number, z } from 'zod';
+import { ExamQueryParams, createExam, queryExams } from './sql';
+import { ExamModel, ExamStatus } from './exam.type';
 
 // 定义zod模式，与ExamModel结构类似，但没有examId
 const ExamSchema = z.object({
@@ -33,5 +34,38 @@ export async function createExamByFormData(formData: FormData) {
     // 如果解析或验证失败，则抛出错误
     console.error(error);
     throw new Error("Invalid exam data");
+  }
+}
+
+// 根据查询模型查询 exam
+// 定义查询参数的zod模式
+const ExamQueryParamsSchema = z.object({
+  ExamName: z.string().optional(),
+  Subject: z.string().optional(),
+  StartTime: z.string().optional(),
+  EndTime: z.string().optional(),
+  TotalScore: z.string().optional(),
+  Status: z.string().optional(),
+});
+
+export async function queryExamByQuery(search: ExamQueryParams) {
+  const seachData =  { ...search }
+
+  try {
+    if (seachData.Status === '-1') {
+      delete seachData.Status;
+    }
+    if (seachData.StartTime) {
+      const StartTime = new Date(seachData.StartTime);
+      StartTime.setHours(0, 0, 0, 0);
+      seachData.StartTime = StartTime.toString();
+    }
+
+    const parsedData = ExamQueryParamsSchema.parse(seachData);
+    const rows = await queryExams(parsedData);
+    return rows as ExamModel[]; 
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 }
