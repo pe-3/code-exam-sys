@@ -14,7 +14,8 @@ export interface ExamModel {
   StartTime: string;
   EndTime: string;
   TotalScore: number;
-  Status: ExamStatus
+  Status: ExamStatus;
+  ExamLink?: string;
 };
 
 // 状态文案映射对象
