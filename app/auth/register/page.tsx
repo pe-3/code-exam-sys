@@ -13,7 +13,7 @@ export default function RegisterComponent() {
   const router = useRouter();
   const toast = useToast({
     position: 'top-right',
-    duration: 9000
+    duration: 3000
   });
   const handleSubmit = (e: any) => {
     e.preventDefault();

@@ -5,11 +5,11 @@ import ExamsTable from "./ExamsTable"
 import { GetServerSideProps } from "next";
 import { ExamModel } from "@/sql/exam/exam.type";
 import { queryExamByQuery } from "@/sql/exam/actions";
+import { useRef } from "react";
 
 export default async function Component({ searchParams } : {
   searchParams: ExamQueryParams
 }) {
-
   let examsByQuery = await queryExamByQuery(searchParams);
 
   if(!examsByQuery) {
@@ -23,7 +23,7 @@ export default async function Component({ searchParams } : {
       <div className="flex flex-col space-y-4 mb-6">
         <ExamsFilter searchParams={searchParams} />
       </div>
-      <ExamsTable exams={examsByQuery}/>
+      <ExamsTable exams={examsByQuery} />
       {/* <ExamsPager/> */}
     </div>
   )

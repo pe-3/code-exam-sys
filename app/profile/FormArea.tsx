@@ -70,7 +70,7 @@ export default function FormArea(
   }
 ) {
   const toast = useToast({
-    duration: 9000,
+    duration: 3000,
     position: 'top-right',
   });
 

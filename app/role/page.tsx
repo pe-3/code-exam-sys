@@ -31,7 +31,7 @@ const UserCard = ({ role, imageSrc, placeholder }: {
   // 1. toast
   const toast = useToast({
     position: 'top-right',
-    duration: 9000
+    duration: 3000
   });
   const router = useRouter();
 

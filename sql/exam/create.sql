@@ -1,5 +1,5 @@
 CREATE TABLE Exams (
-    ExamID INT PRIMARY KEY,
+    ExamId INT PRIMARY KEY,
     ExamName VARCHAR(255) NOT NULL,
     Subject VARCHAR(255) NOT NULL,
     StartTime TIMESTAMP NOT NULL,

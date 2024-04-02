@@ -18,6 +18,18 @@ export interface ExamModel {
   ExamLink?: string;
 };
 
+// 更新模型
+export interface ExamUpdateModel {
+  ExamId: number;
+  ExamName?: string;
+  Subject?: string;
+  StartTime?: string;
+  EndTime?: string;
+  TotalScore?: number;
+  Status?: ExamStatus;
+  ExamLink?: string;
+}
+
 // 状态文案映射对象
 export const ExamStatusDescriptions: { [key in ExamStatus]: string } = {
   [ExamStatus.UNEDITED]: "未编辑",

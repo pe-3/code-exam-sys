@@ -1,8 +1,9 @@
 'use server';
 
 import { number, z } from 'zod';
-import { ExamQueryParams, createExam, queryExams } from './sql';
+import { ExamQueryParams, createExam, getExamById, queryExams, updateExam } from './sql';
 import { ExamModel, ExamStatus } from './exam.type';
+import { uploadFile } from '@/utils/upload';
 
 // 定义zod模式，与ExamModel结构类似，但没有examId
 const ExamSchema = z.object({
@@ -67,5 +68,68 @@ export async function queryExamByQuery(search: ExamQueryParams) {
   } catch (error) {
     console.error(error);
     return null;
+  }
+}
+
+// 保存考试详情 json 文件
+export async function saveExamDetail(formData: FormData) {
+  const fileUrl = await uploadFile(formData);
+
+  if (!fileUrl) return false;
+
+  const ExamId = formData.get('ExamId') as any;
+
+  const [res] = await updateExam({
+    ExamId,
+    ExamLink: fileUrl,
+    Status: ExamStatus.UNPUBLISHED
+  });
+
+  console.log(res);
+
+  return res?.affectedRows === 1;
+}
+
+// 获取 json 文件
+export async function getExamDetail({
+  ExamId
+}: {
+  ExamId: string;
+}) {
+  const Exam = await getExamById(Number(ExamId));
+  if (!Exam) {
+    return ''
+  };
+
+  if (!Exam.ExamLink) {
+    return;
+  };
+
+  // 获取 Exam.ExamLink 的文件
+  const res = await fetch(`http://localhost:3000${Exam.ExamLink}`);
+  const json = await res.json();
+  return json;
+}
+
+
+// 回滚考试状态
+export async function rollbackExamStatus({
+  ExamId,
+  Status
+}: {
+  ExamId: number;
+  Status: ExamStatus
+}) {
+  try {
+    const [res] = await updateExam({
+      ExamId: Number(ExamId),
+      Status: Status - 1 < 0 ? Status : Status - 1
+    });
+  
+    return res?.affectedRows === 1;
+  }
+  catch (err) {
+    console.log(err);
+    return false;
   }
 }

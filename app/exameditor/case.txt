@@ -1,0 +1,27 @@
+// case: 
+
+// const $choices = [
+//   {
+//     id: 'question1',
+//     question: 'What is 2+2?',
+//     options: [
+//       { id: 'q1o1', text: '4' },
+//       { id: 'q1o2', text: '22' },
+//       { id: 'q1o3', text: 'An undefined number' },
+//       { id: 'q1o4', text: 'None of the above' },
+//     ],
+//   },
+//   // 可以添加更多问题...
+// ];
+
+// const $blanks = [
+//   "In the year *** , Christopher Columbus sailed the ocean blue."
+// ];
+
+// const $shorts = [
+//   "In the year 1492, Christopher Columbus sailed the ocean blue. What do you want?"
+// ];
+
+// const $programs = [
+//   "In the year 1492, Christopher Columbus sailed the ocean blue. What do you want?"
+// ];

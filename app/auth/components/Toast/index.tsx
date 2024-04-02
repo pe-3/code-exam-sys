@@ -31,7 +31,7 @@ export default function UiToast({
                 <Icon className={ToastIcons[type][1]} />
                 <div className="flex-1 grid gap-2">
                   <h5 className="font-medium">{title}</h5>
-                  <p className="text-sm leading-none text-sm">{description}</p>
+                  <p className="text-sm leading-none text-sm whitespace-pre-wrap">{description}</p>
                 </div>
                 {view && <Button size="sm" variant="outline" onClick={onView}>
                   View

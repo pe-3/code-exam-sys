@@ -11,12 +11,13 @@ import { ExamEditor } from "./ExamEditor"
 import { Button } from "@/components/ui/button"
 import { ExamStatusDescriptions } from "@/sql/exam/exam.type"
 import { ExamQueryParams } from "@/sql/exam/sql"
+import { forwardRef } from "react";
 
-export default function ExamsFilter({
+const Filter = forwardRef(function ExamsFilter({
   searchParams
 }: {
   searchParams: ExamQueryParams
-}) {
+}, ref) {
   return (
     <form className="w-full mx-auto space-y-4">
       <div className="flex flex-wrap items-center gap-4">
@@ -49,8 +50,10 @@ export default function ExamsFilter({
           e.preventDefault();
           window.location.href = '/exams';
         }}>重置</Button>
-        <ExamEditor />
+        <ExamEditor ref={ref} />
       </div>
     </form>
   )
-}
+})
+
+export default Filter;

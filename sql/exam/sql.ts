@@ -2,7 +2,7 @@
 
 import { RowDataPacket } from 'mysql2';
 import pool from '../pool'; // replace with actual file path
-import { ExamModel, ExamStatus } from './exam.type';
+import { ExamModel, ExamStatus, ExamUpdateModel } from './exam.type';
 
 export async function getAllExams(): Promise<ExamModel[]> {
   const sql = 'SELECT * FROM Exams ORDER BY StartTime DESC';
@@ -11,7 +11,7 @@ export async function getAllExams(): Promise<ExamModel[]> {
 }
 
 export async function getExamById(examId: number): Promise<ExamModel | null> {
-  const [rows] = await pool.execute<RowDataPacket[]>('SELECT * FROM Exams WHERE ExamID = ?', [examId]);
+  const [rows] = await pool.execute<RowDataPacket[]>('SELECT * FROM Exams WHERE ExamId = ?', [examId]);
   if (rows.length === 0) return null;
 
   const row = rows[0];
@@ -23,20 +23,13 @@ export async function createExam(exam: Omit<ExamModel, 'examId'>): Promise<any> 
   return res;
 }
 
-export async function updateExam(exam: ExamModel): Promise<void> {
-  await pool.execute('UPDATE Exams SET ExamName = ?, Subject = ?, StartTime = ?, EndTime = ?, TotalScore = ?, IsCancelled = ? WHERE ExamID = ?', [
-    exam.examName,
-    exam.subject,
-    exam.startTime,
-    exam.endTime,
-    exam.totalScore,
-    exam.isCancelled ? 1 : 0,
-    exam.examId
-  ]);
+export async function updateExam(exam: ExamUpdateModel): Promise<any> {
+  const res = await pool.query('UPDATE Exams SET ? WHERE ExamId = ?', [exam, exam.ExamId]);
+  return res;
 }
 
 export async function deleteExam(examId: number): Promise<void> {
-  await pool.execute('DELETE FROM Exams WHERE ExamID = ?', [examId]);
+  await pool.execute('DELETE FROM Exams WHERE ExamId = ?', [examId]);
 }
 
 // 定义查询参数接口
