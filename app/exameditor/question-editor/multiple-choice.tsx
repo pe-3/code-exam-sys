@@ -6,12 +6,17 @@ import { forwardRef, useImperativeHandle, useRef, useState } from "react"
 import { set } from 'lodash'
 
 const MultipleChoice = forwardRef(function MutipleChoice({
+  initChoice
+}: {
+  initChoice?: any;
 }, ref: any) {
+
+  const { question, options } = initChoice || {};
 
   const choiceRef = useRef({
     id: 'question1',
-    question: '',
-    options: [
+    question: question || '',
+    options: options || [
       { id: 'A', text: '' },
       { id: 'B', text: '' },
       { id: 'C', text: '' },

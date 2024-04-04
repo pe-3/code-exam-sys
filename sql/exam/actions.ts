@@ -92,9 +92,11 @@ export async function saveExamDetail(formData: FormData) {
 
 // 获取 json 文件
 export async function getExamDetail({
-  ExamId
+  ExamId,
+  inExam
 }: {
   ExamId: string;
+  inExam: boolean;
 }) {
   const Exam = await getExamById(Number(ExamId));
   if (!Exam) {
@@ -107,10 +109,17 @@ export async function getExamDetail({
 
   // 获取 Exam.ExamLink 的文件
   const res = await fetch(`http://localhost:3000${Exam.ExamLink}`);
-  const json = await res.json();
-  return json;
-}
+  const ExamDetail = await res.json();
 
+  if (inExam) {
+    delete ExamDetail.choicesAnswer;
+    delete ExamDetail.blanksAnswer;
+    delete ExamDetail.shortsAnswer;
+    delete ExamDetail.programsAnswer;
+  }
+
+  return ExamDetail;
+}
 
 // 回滚考试状态
 export async function rollbackExamStatus({
@@ -131,5 +140,145 @@ export async function rollbackExamStatus({
   catch (err) {
     console.log(err);
     return false;
+  }
+}
+
+// 在线运行代码
+export async function runCode({
+  code,
+  language
+}: {
+  code: string;
+  language: string;
+}) {
+
+  try {
+    const response = await fetch('http://localhost:8080/run', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code, language })
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        return  JSON.stringify(data.result);
+    } else {
+        const error = await response.json();
+        return error.error;
+    }
+  } catch (error: Error | any) {
+    console.error(error);
+    return 'Network or other error: ' + error.message;
+  }
+}
+
+// 考试判题
+export async function examJudge({
+  ExamId,
+  answer
+}: {
+  ExamId: number;
+  answer: {
+    choices: any[];
+    blanks: any[];
+    shorts: any[];
+    programs: any[];
+  };
+}) {
+  try {
+    const detail = await getExamDetail({
+      ExamId: String(ExamId),
+      inExam: false
+    });
+
+    const {
+      choices,
+      blanks,
+      shorts,
+      programs
+    } = answer;
+
+    const {
+      choicesAnswer,
+      blanksAnswer,
+      shortsAnswer,
+      programsAnswer
+    } = detail;
+
+    let score = 0;
+
+    const scoreDetail: (0 | 1)[] = []
+
+    // 选择题
+    let choiceRight = 0;
+    choices.forEach((choice, index) => {
+      if (choice === choicesAnswer[index]) {
+        choiceRight++;
+        scoreDetail.push(1);
+      } else {
+        scoreDetail.push(0);
+      }
+      (choice === choicesAnswer[index]) && (choiceRight++);
+    });
+
+    // 填空题
+    let blankRight = 0;
+    blanks.forEach((blank, index) => {
+      if (blank === blanksAnswer[index]) {
+        blankRight++;
+        scoreDetail.push(1);
+      } else {
+        scoreDetail.push(0);
+      }
+    });
+
+    // 简答题
+    let shortRight = 0;
+    shorts.forEach((short, index) => {
+      if (short === shortsAnswer[index]) {
+        shortRight++;
+        scoreDetail.push(1);
+      } else {
+        scoreDetail.push(0);
+      }
+    });
+
+    // 编程题
+    let programRight = 0;
+    programs.forEach((program, index) => {
+      if (program === programsAnswer[index]) {
+        programRight++;
+        scoreDetail.push(1);
+      } else {
+        scoreDetail.push(0);
+      }
+    });
+
+    score = 
+      (choiceRight / choices.length * detail.choiceTotal) 
+      + (blankRight / blanks.length * detail.blankTotal)
+      + (shortRight / shorts.length * detail.shortTotal) 
+      + (programRight / programs.length * detail.programTotal);
+
+    return {
+      isOk: true,
+      score,
+      scoreDetail: scoreDetail.join(','),
+      submitAnswer: answer,
+      rightAnswer: {
+        choices: choicesAnswer,
+        blanks: blanksAnswer,
+        shorts: shortsAnswer,
+        programs: programsAnswer
+      }
+    };
+
+  } catch(err: any) {
+    return {
+      isOk: false,
+      err: err.message
+    }
   }
 }

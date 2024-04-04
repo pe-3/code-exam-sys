@@ -52,7 +52,7 @@ export default function HomeComponent() {
               登录/注册
             </button>
           </Link>
-          <Link href='/auth/register'>
+          <Link href='/code-editor'>
             <button
               className="bg-white text-black py-2 px-4 rounded border border-gray-800 hover:bg-gray-200 transition-colors duration-200"
             >
