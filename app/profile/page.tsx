@@ -10,8 +10,8 @@ export default async function Component() {
   const user = await getUserInfo();
 
   return (
-    <div className="min-h-screen bg-gray-100 py-5">
-      <div className="mx-auto max-w-4xl px-4">
+    <div className="min-h-screen py-5">
+      <div className="w-full">
         <div className="mb-6 bg-white p-6">
           <h3 className="text-lg font-bold">用户信息</h3>
         </div>

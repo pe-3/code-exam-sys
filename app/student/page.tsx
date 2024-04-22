@@ -79,7 +79,7 @@ export default function Component() {
   return (
     <div className="bg-white p-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">即将开拍的考试</h1>
+        <h1 className="text-2xl font-bold mb-2">即将开始的考试</h1>
         <p className="text-sm text-gray-500 mb-4">考试时间：2024年02月25日 10:00 AM</p>
         <p className="text-sm text-gray-500">考试倒计时 15 分钟结束</p>
         <Button className="mt-4 bg-blue-600 text-white">开始考试</Button>

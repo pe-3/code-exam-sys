@@ -16,10 +16,9 @@ import { useToast } from "@chakra-ui/react";
 import UiToast, { EToastType } from "../auth/components/Toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { examJudge, getExamDetail, saveExamDetail } from "@/sql/exam/actions";
+import { examJudge, getExamDetail, getExamResult, saveExamDetail } from "@/sql/exam/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import ProgramIdeModal from "./question-editor/program-ide";
-import { number } from "zod";
 
 function scoreToColor(score: number) {
   // 确保分数在合法范围内
@@ -35,13 +34,15 @@ function scoreToColor(score: number) {
   return `rgb(${red}, ${green}, ${blue})`;
 }
 
-const QuestionItem = ({ question, options, index, answerDetail, rerender }: {
+const QuestionItem = ({ question, options, index, answerDetail, rerender, afterExam }: {
   question: any;
   options: any;
   index: number;
   answerDetail: any[];
   rerender: () => any;
+  afterExam?: boolean;
 }) => {
+  
   return (
     <div>
       <div>{question}</div>
@@ -58,7 +59,10 @@ const QuestionItem = ({ question, options, index, answerDetail, rerender }: {
               name={question}
               value={option.text}
               className="mr-2 leading-tight"
-              defaultChecked={option.text === answerDetail[index]}
+              defaultChecked={option.text == answerDetail[index]}
+              {...(afterExam && {
+                checked: option.text === answerDetail[index]
+              })}
             />
             {option.text}
           </label>
@@ -68,11 +72,12 @@ const QuestionItem = ({ question, options, index, answerDetail, rerender }: {
   );
 };
 
-const BlankItem = ({ blankStr, index, answerDetail, rerender } : {
+const BlankItem = ({ blankStr, index, answerDetail, rerender, afterExam } : {
   blankStr: string;
   index: number;
   answerDetail: any[];
   rerender: () => any;
+  afterExam?: boolean;
 }) => {
   const items = blankStr.split('***');
 
@@ -102,6 +107,7 @@ const BlankItem = ({ blankStr, index, answerDetail, rerender } : {
             defaultValue={values[itemidx]}
             type="text"
             className="border-b-2 border-gray-300 focus:border-blue-500 outline-none text-center w-20"
+            disabled={afterExam}
           />}
         </span>
       ))
@@ -109,11 +115,12 @@ const BlankItem = ({ blankStr, index, answerDetail, rerender } : {
   </div>)
 }
 
-const ShortItem = ({ shorStr, index, answerDetail, rerender } : {
+const ShortItem = ({ shorStr, index, answerDetail, rerender, afterExam } : {
   shorStr: string;
   index: number;
   answerDetail: any[];
   rerender: () => any;
+  afterExam?: boolean;
 }) => {
   return (
     <div className="w-full">
@@ -126,27 +133,31 @@ const ShortItem = ({ shorStr, index, answerDetail, rerender } : {
           rerender();
         }}
         defaultValue={answerDetail[index]}
+        disabled={afterExam}
       />
     </div>
   )
 }
 
-const ProgramItem = ({ programStr, index, answerDetail, rerender } : {
+const ProgramItem = ({ programStr, index, answerDetail, rerender, afterExam } : {
   programStr: string;
   index: number;
   answerDetail: any[];
   rerender: () => any;
+  afterExam?: boolean;
 }) => {
   const [res, setRes] = useState(answerDetail[index]);
 
   return (
     <div className="w-full">
       {programStr}
-      <div className="text-yellow-500 my-2">
+      {afterExam ?<div className="text-yellow-500 my-2">
+        结果: {answerDetail[index] || '暂无'}
+      </div>: <div className="text-yellow-500 my-2">
         结果: {res || '暂无'}
-      </div>
+      </div>}
       <div className="my-2">
-        <ProgramIdeModal ProgarmDetail={programStr} onSubmit={(res) => {
+        <ProgramIdeModal disabled={afterExam} ProgarmDetail={programStr} onSubmit={(res) => {
           answerDetail[index] = res;
           setRes(res);
           rerender();
@@ -167,12 +178,48 @@ const judgePathEmpty = (target: Record<string, any>,pathArr: key[][]) => {
   return false;
 }
 
+// Check (对号) Icon，变大且为绿色
+export const CheckIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="32" // 修改宽度为48px
+    height="32" // 修改高度为48px
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="green" // 修改颜色为绿色
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20 6L9 17l-5-5" />
+  </svg>
+);
+
+// Cross (错号) Icon，变大且为红色
+export const CrossIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="32" // 修改宽度为48px
+    height="32" // 修改高度为48px
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="red" // 修改颜色为红色
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M18 6L6 18M6 6l12 12" />
+  </svg>
+);
+
 export default function Component({
   closeEdit,
   inExam,
+  afterExam
 }: {
   closeEdit?: boolean;
   inExam?: boolean;
+  afterExam?: boolean;
 }) {
   // 刷新函数
   const [_, render] = useState(0);
@@ -338,6 +385,11 @@ export default function Component({
 
   const programTotal = useRef<number>(40);
 
+  const [examResult] = useState<any>({});
+
+  const scoreDetail = examResult.scoreDetail?.split(',') || [];
+
+
   useEffect(() => {
     getExamDetail({
       ExamId: search.get('ExamId') as string,
@@ -354,16 +406,41 @@ export default function Component({
       shortTotal.current = ExamDetail.shortTotal;
       programTotal.current = ExamDetail.programTotal;
 
-      if (!inExam) {
+      if (!inExam && !afterExam) {
         choicesAnswer.splice(0, choicesAnswer.length, ...(ExamDetail.choicesAnswer || []));
         blanksAnswer.splice(0, blanksAnswer.length, ...(ExamDetail.blanksAnswer || []));
         shortsAnswer.splice(0, shortsAnswer.length, ...(ExamDetail.shortsAnswer || []));
         programsAnswer.splice(0, programsAnswer.length, ...(ExamDetail.programsAnswer || []));
-      } 
+      }
+          
+      if (afterExam) {
+        getExamResult({
+          ExamId: Number(search.get('ExamId') as string),
+        }).then(lastestExam => {
+          Object.assign(examResult, lastestExam);
+
+          const {
+            choices,
+            blanks,
+            shorts,
+            programs
+          } = lastestExam.submitAnswer;
+
+          choicesAnswer.splice(0, choices.length, ...(choices || []));
+          blanksAnswer.splice(0, blanks.length, ...(blanks || []));
+          shortsAnswer.splice(0, shorts.length, ...(shorts || []));
+          programsAnswer.splice(0, programs.length, ...(programs || []));
+
+          rerender();
+        }).catch(err => {
+          console.log(err);
+        })
+      }
 
       rerender();
     });
-  }, [])
+
+  }, []);
 
   // 考试详情最后数据对象
   const currentDetail = {
@@ -537,6 +614,7 @@ export default function Component({
           />
         )
       });
+      router.push(`/after-exam?ExamId=${search.get('ExamId') as string}&ExamName=${ExamName}`);
     } else {
       toast({
         render: () => (
@@ -553,8 +631,12 @@ export default function Component({
   return (
     <div className="flex flex-col w-full h-full bg-gray-100 p-4">
       <div className="flex flex-row h-[calc(100vh-1.5rem)]">
-        <div className="flex flex-1 flex-col p-4 h-[100%] ">
-          <div className="bg-white rounded-sm shadow p-8 h-[100%] overflow-auto">
+        <div className="flex flex-1 flex-col p-4 h-[100%]">
+          <div className="bg-white rounded-sm shadow p-8 h-[100%] overflow-auto relative">
+            {afterExam && <div className="absolute right-24 top-8 text-5xl font-bold italic text-red-500 bg-white">
+              <div>{examResult.score}</div>
+              <div className="absolute left-0 bottom-0 w-full h-0.5 bg-red-500"></div>
+            </div>}
             <header className="flex items-center justify-between pb-4">
               <h1 className="text-2xl font-bold">{ExamName}</h1>
             </header>
@@ -566,7 +648,7 @@ export default function Component({
                     choiceTotal.current = Number(e.target.value) || 20;
                     rerender();
                   }}/>}
-                  {inExam && <span>({choiceTotal.current} 分)</span>}
+                  {inExam || afterExam && <span>({choiceTotal.current} 分)</span>}
                 </h2>
                 {choices.map((choice, index) => (
                   <div className="flex items-start py-4 gap-4 whitespace-pre-wrap relative pr-24" key={index} id={`choice-${index}`}>
@@ -577,6 +659,7 @@ export default function Component({
                       index={index}
                       answerDetail={choicesAnswer}
                       rerender={rerender}
+                      afterExam={afterExam}
                     /> : <MutipleChoice 
                           ref={(edit) => {
                             choicesEditRef[index] = edit;
@@ -607,6 +690,7 @@ export default function Component({
                         }}>删除</Button>
                       </div>
                     </div>}
+                    {afterExam && <div className="absolute bottom-10 right-10">{ scoreDetail[index] === '1' ? <CheckIcon/> : <CrossIcon/>}</div> }
                   </div>
                 ))}
                 {closeEdit || <div className="flex items-start my-4 gap-4">
@@ -624,7 +708,7 @@ export default function Component({
                     blankTotal.current = Number(e.target.value) || 20;
                     rerender();
                   }} />}
-                  {inExam && <span>({blankTotal.current} 分)</span>}
+                  {inExam || afterExam && <span>({blankTotal.current} 分)</span>}
                 </h2>
                 {
                   blanks.map((blank, index) => (
@@ -636,6 +720,7 @@ export default function Component({
                           blankStr={blank} 
                           index={index}
                           answerDetail={blanksAnswer} 
+                          afterExam={afterExam}
                         /> 
                         : <FillInTheBlank init={blank} ref={(blank) => {
                           blanksEditRef[index] = blank;
@@ -663,6 +748,7 @@ export default function Component({
                           }}>删除</Button>
                         </div>
                       </div>}
+                      {afterExam && <div className="absolute bottom-0 right-10">{ scoreDetail[index + choices.length] === '1' ? <CheckIcon/> : <CrossIcon/>}</div> }
                     </div>
                   ))
                 }
@@ -681,7 +767,7 @@ export default function Component({
                     shortTotal.current = Number(e.target.value) || 20;
                     rerender();
                   }} />}
-                  {inExam && <span>({shortTotal.current} 分)</span>}
+                  {inExam || afterExam && <span>({shortTotal.current} 分)</span>}
                 </h2>
                 {
                   shorts.map((short, index) => (
@@ -694,6 +780,7 @@ export default function Component({
                             index={index}
                             answerDetail={shortsAnswer}
                             rerender={rerender}
+                            afterExam={afterExam}
                           />
                         : <ShortAnswer init={short} ref={(short) => {
                           shortsEditRef[index] = short;
@@ -725,6 +812,7 @@ export default function Component({
                           >删除</Button>
                         </div>  
                       </div>}
+                      {afterExam && <div className="absolute bottom-10 right-10">{ scoreDetail[index + choices.length + blanks.length] === '1' ? <CheckIcon/> : <CrossIcon/>}</div> }
                     </div>
                   ))
                 }
@@ -743,7 +831,7 @@ export default function Component({
                     programTotal.current = Number(e.target.value) || 40;
                     rerender();
                   }} />}
-                  {inExam && <span>({programTotal.current} 分)</span>}
+                  {inExam || afterExam && <span>({programTotal.current} 分)</span>}
                 </h2>
                 {
                   programs.map((program, index) => (
@@ -755,6 +843,7 @@ export default function Component({
                           index={index} 
                           answerDetail={programsAnswer}
                           rerender={rerender}
+                          afterExam={afterExam}
                         /> 
                       : <Programming init={program} ref={(program) => {
                         programsEditRef[index] = program;
@@ -781,6 +870,7 @@ export default function Component({
                           rerender();
                         }}>删除</Button>
                       </div>}
+                      {afterExam && <div className="absolute bottom-10 right-10">{ scoreDetail[index + choices.length + blanks.length + shorts.length] === '1' ? <CheckIcon/> : <CrossIcon/>}</div> }
                     </div>
                   ))
                 }
@@ -804,7 +894,7 @@ export default function Component({
           </div>
         </div>
         {/* 右侧考试题目导航 */}
-        <div className="p-4 h-[calc(100vh-1.5rem)]">
+        {afterExam || <div className="p-4 h-[calc(100vh-1.5rem)]">
           <div className="flex-1 p-4 bg-white rounded-sm shadow p-8 h-[100%] overflow-auto">
             {/* 题型导航 */}
             <Button size="sm" variant="ghost">
@@ -889,7 +979,93 @@ export default function Component({
               ))}
             </div>
           </div>
-        </div>
+        </div>}
+        {afterExam && <div className="p-4 h-[calc(100vh-1.5rem)]">
+          <div className="flex-1 p-4 bg-white rounded-sm shadow p-8 h-[100%] overflow-auto">
+            {/* 题型导航 */}
+            <Button size="sm" variant="ghost">
+              一
+            </Button>
+            {/* 题型导航下面的数字按钮 */}
+            <div className="grid grid-cols-4 gap-2 m-1">
+              {choices.map((_, num) => (
+                <Button 
+                  key={num} 
+                  className={scoreDetail[num] === '1' ? 'w-10 h-10 bg-green-400' : 'w-10 h-10 bg-red-400'}
+                  onClick={() => {
+                    const dom = document.getElementById(`choice-${num}`);
+                    dom?.scrollIntoView({
+                      behavior: 'smooth'
+                    });
+                  }}
+                >
+                  {num + 1}
+                </Button>
+              ))}
+            </div>
+
+            <Button size="sm" variant="ghost">
+              二
+            </Button>
+            {/* 题型导航下的数字按钮 */}
+            <div className="grid grid-cols-4 gap-2 m-1">
+              {blanks.map((_, num) => (
+                <Button
+                  key={num}
+                  className={scoreDetail[num + choices.length] === '1' ? 'w-10 h-10 bg-green-400' : 'w-10 h-10 bg-red-400'}
+                  onClick={() => {
+                    const dom = document.getElementById(`blank-${num}`);
+                    dom?.scrollIntoView({
+                      behavior: 'smooth',
+                    });
+                  }}
+                >
+                  {num + 1}
+                </Button>
+              ))}
+            </div>
+
+            <Button size="sm" variant="ghost">
+              三
+            </Button>
+            {/* 题型导航下的数字按钮 */}
+            <div className="grid grid-cols-4 gap-2 m-1">
+              {shorts.map((_, num) => (
+                <Button 
+                  key={num} 
+                  className={scoreDetail[num + choices.length + blanks.length] === '1' ? 'w-10 h-10 bg-green-400' : 'w-10 h-10 bg-red-400'}
+                  onClick={() => {
+                    const dom = document.getElementById(`short-${num}`);
+                    dom?.scrollIntoView({
+                      behavior: 'smooth'
+                    });
+                }}>
+                  {num + 1}
+                </Button>
+              ))}
+            </div>
+
+            <Button size="sm" variant="ghost">
+              四
+            </Button>
+            {/* 题型导航下的数字按钮 */}
+            <div className="grid grid-cols-4 gap-2 m-1">
+              {programs.map((_, num) => (
+                <Button
+                  key={num}
+                  className={scoreDetail[num + choices.length + blanks.length + shorts.length] === '1' ? 'w-10 h-10 bg-green-400' : 'w-10 h-10 bg-red-400'}
+                  onClick={() => {
+                    const dom = document.getElementById(`program-${num}`);
+                    dom?.scrollIntoView({
+                      behavior: 'smooth'
+                    });
+                }}>
+                  {num + 1}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>}
       </div>
     </div>
   )

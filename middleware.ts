@@ -14,5 +14,10 @@ export const config = {
     '/role',
     '/student',
     '/teacher',
+    '/exams',
+    '/exam-detail',
+    '/in-exam',
+    '/exameditor',
+    '/after-exam'
   ],
 }

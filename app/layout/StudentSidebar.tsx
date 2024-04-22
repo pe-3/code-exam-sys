@@ -26,6 +26,11 @@ const menuList = [
     name: '成绩汇总',
     icon: StarIcon,
     href: '/student/grades'
+  },
+  {
+    name: '个人信息',
+    icon: UserIcon,
+    href: '/student/profile'
   }
 ];
 

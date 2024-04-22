@@ -154,7 +154,7 @@ export default function FormArea(
           </div>
         </div>
         <div className="mt-6 md:mt-0">
-          <Link href="/profile#edit-area">
+          <Link href="./profile#edit-area">
             <Button disabled={edit} onClick={() => setEdit(pre => !pre)}>编辑信息</Button>
           </Link>
         </div>

@@ -17,17 +17,19 @@ import { useState } from "react";
 
 export default function ProgramIdeModal({
   ProgarmDetail,
-  onSubmit
+  onSubmit,
+  disabled
 }: {
   ProgarmDetail: string,
   onSubmit: (res: any) => void;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
   return (
     <AlertDialog open={open}>
       <AlertDialogTrigger asChild>
-        <Button onClick={() => setOpen(true)}>去实现</Button>
+        <Button disabled={disabled} onClick={() => setOpen(true)}>去实现</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

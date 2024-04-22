@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * v0 by Vercel.
  * @see https://v0.dev/t/1EPg3zjWxx5
@@ -6,10 +8,11 @@
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export default function Component() {
   return (
-    <div className="bg-[#000000] pt-3 pb-3">
+    <div className="bg-[#000000] pt-3 pb-3 fixed top-0 right-0 w-full z-10">
       <div className="mx-auto px-4 flex justify-between items-center w-full">
         <div className="flex items-center">
           <MenuIcon className="text-white h-6 w-6" />
@@ -19,9 +22,9 @@ export default function Component() {
           </Badge>
         </div>
         <div className="flex items-center">
-          <Input className="rounded-full py-2 pl-4 pr-10 w-80" placeholder="搜索" />
-          <SearchIcon className="text-white h-6 w-6 absolute ml-[-40px]" />
-          <Button className="ml-4 bg-white text-black px-6">敲点代码</Button>
+          <Button variant="outline" onClick={() => {
+            window.location.href = '/code-editor'
+          }}>敲点代码</Button>
           <SettingsIcon className="text-white h-6 w-6 ml-4" />
         </div>
       </div>

@@ -4,6 +4,11 @@ import { number, z } from 'zod';
 import { ExamQueryParams, createExam, getExamById, queryExams, updateExam } from './sql';
 import { ExamModel, ExamStatus } from './exam.type';
 import { uploadFile } from '@/utils/upload';
+import { getItemInVisitor } from '@/storage';
+import { getTokenFromCookie } from '@/app/token';
+import { JwtPayload } from 'jsonwebtoken';
+import { getStudentExamResult, insertStudentExamResult } from '../exam-result/sql';
+import { File } from 'buffer'
 
 // 定义zod模式，与ExamModel结构类似，但没有examId
 const ExamSchema = z.object({
@@ -259,11 +264,17 @@ export async function examJudge({
     score = 
       (choiceRight / choices.length * detail.choiceTotal) 
       + (blankRight / blanks.length * detail.blankTotal)
-      + (shortRight / shorts.length * detail.shortTotal) 
+      + (shortRight / shorts.length * detail.shortTotal)
       + (programRight / programs.length * detail.programTotal);
+    
+    const salt = await getItemInVisitor('TOKEN_SALT');
+    const tokenPayload = await getTokenFromCookie(salt);
 
-    return {
-      isOk: true,
+    const {
+      id: student_id
+    } = (tokenPayload as JwtPayload) || {};
+
+    const ExamDetail = {
       score,
       scoreDetail: scoreDetail.join(','),
       submitAnswer: answer,
@@ -273,6 +284,33 @@ export async function examJudge({
         shorts: shortsAnswer,
         programs: programsAnswer
       }
+    }
+
+    const data = new FormData();
+    const detailFile = new File(
+      [JSON.stringify(ExamDetail)],
+      'exam-detail.json'
+    );
+    data.append('file', detailFile as Blob)
+    const ExamDetailLink = await uploadFile(data);
+
+    if (!ExamDetailLink) {
+      throw new Error('考试结果保存失败');
+    }
+
+    const isInserted = await insertStudentExamResult({
+      studentId: Number(student_id),
+      examId: ExamId,
+      examResult: ExamDetailLink
+    })
+
+    if (!isInserted) {
+      throw new Error('考试结果保存失败');
+    }
+
+    return {
+      isOk: true,
+      score
     };
 
   } catch(err: any) {
@@ -280,5 +318,36 @@ export async function examJudge({
       isOk: false,
       err: err.message
     }
+  }
+}
+
+// 获取考试结果
+export async function getExamResult({
+  ExamId,
+}: {
+  ExamId: number;
+}) {
+  const salt = await getItemInVisitor('TOKEN_SALT');
+  const tokenPayload = await getTokenFromCookie(salt);
+
+  const {
+    id: student_id
+  } = (tokenPayload as JwtPayload) || {};
+
+  const res = await getStudentExamResult({
+    ExamId,
+    student_id
+  });
+
+  const lastExam = Array.isArray(res) && res.pop();
+
+  if (lastExam) {
+    const {
+      ExamResult
+    } = lastExam;
+
+    const res = await fetch(`http://localhost:3000${ExamResult}`);
+    const data = await res.json();
+    return data;
   }
 }
