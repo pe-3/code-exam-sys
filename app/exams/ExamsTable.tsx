@@ -6,7 +6,7 @@ import { ExamModel, ExamStatus, ExamStatusColors, ExamStatusDescriptions } from 
 import moment from 'moment'
 import Link from "next/link";
 import { ExamEditor } from "./ExamEditor";
-import { rollbackExamStatus } from "@/sql/exam/actions";
+import { publishExam, rollbackExamStatus } from "@/sql/exam/actions";
 import { useToast } from "@chakra-ui/react";
 import UiToast, { EToastType } from "../auth/components/Toast";
 
@@ -24,20 +24,52 @@ export const ExamStatusButton: { [key in ExamStatus]: React.FC<any> } = {
   ),
   [ExamStatus.UNPUBLISHED]: ({
     ExamId,
-    ExamName
+    ExamName,
+    toast
   }: {
     ExamId: any;
     ExamName: any;
+    toast: any;
   }) => (
     <>
       <Link href={`/exam-detail?ExamId=${ExamId}&ExamName=${ExamName}`}>
         <Button variant='outline' size='sm' className="mr-4">检查</Button>
       </Link>
-      <Button variant='destructive' size='sm'>发布</Button>
+      <Button variant='destructive' size='sm' onClick={async () => {
+        try {
+          const isPublishOk = await publishExam({
+            ExamId: Number(ExamId)
+          });
+
+          if (!isPublishOk) {
+            throw new Error('发布失败');
+          } else {
+            window.location.reload();
+          }
+        } catch (err) {
+          toast({
+            render: () => (
+              <UiToast
+                title="发布失败"
+                description="请稍后重试"
+                type={EToastType.Error}
+              />
+            )
+          })
+        }
+      }}>发布</Button>
     </>
   ),
-  [ExamStatus.NOT_STARTED]: () => (
-    <Button variant='secondary' size='sm'>查看</Button>
+  [ExamStatus.NOT_STARTED]: ({
+    ExamId,
+    ExamName
+  }: {
+    ExamId: any;
+    ExamName: any;
+  }) => (
+    <Link href={`/exam-detail?ExamId=${ExamId}&ExamName=${ExamName}`}>
+      <Button variant='secondary' size='sm'>查看</Button>
+    </Link>
   ),
   [ExamStatus.IN_PROGRESS]: () => (
     <Button variant='default' size='sm'>考试</Button>
@@ -76,7 +108,7 @@ export default function ExamsTable({
             <TableRow key={index}>
               <TableCell>{exam.ExamName}</TableCell>
               <TableCell>{exam.Subject}</TableCell>
-              <TableCell>{moment(new Date(exam.StartTime * 1000)).format('YYYY-MM-DD HH:mm')}</TableCell>
+              <TableCell>{moment(new Date(Number(exam.StartTime) * 1000)).format('YYYY-MM-DD HH:mm')}</TableCell>
               <TableCell>{exam.EndTime}</TableCell>
               <TableCell>{exam.TotalScore}</TableCell>
               <TableCell style={{ color: ExamStatusColors[exam.Status] }}>{ExamStatusDescriptions[exam.Status]}</TableCell>
@@ -111,7 +143,8 @@ export default function ExamsTable({
                 >回滚</Button>
                 {ExamStatusButton[exam.Status]({
                   ExamId: exam.ExamId,
-                  ExamName: exam.ExamName
+                  ExamName: exam.ExamName,
+                  toast
                 })}
               </TableCell>
             </TableRow>

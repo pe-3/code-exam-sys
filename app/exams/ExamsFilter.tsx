@@ -48,7 +48,7 @@ const Filter = forwardRef(function ExamsFilter({
         <Button variant='outline'>查询</Button>
         <Button variant='secondary' onClick={(e) => {
           e.preventDefault();
-          window.location.href = '/exams';
+          window.location.href = '/teacher/exam-list';
         }}>重置</Button>
         <ExamEditor ref={ref} />
       </div>

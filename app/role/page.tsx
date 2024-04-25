@@ -61,6 +61,19 @@ const UserCard = ({ role, imageSrc, placeholder }: {
       '管理员': UserRole.Admin
     };
     const roleValue = roleValues[role];
+
+    if (roleId !== 'asjhuba123' && role !== '学生') {
+      return toast({
+        render: () => (
+          <UiToast
+            title="选择失败"
+            description={`授权码错误，请输入正确的授权码`}
+            type={EToastType.Error}
+          />
+        )
+      });
+    }
+
     // 4. 选择角色
     const isSelected = await selectRole({
       role: roleValue,

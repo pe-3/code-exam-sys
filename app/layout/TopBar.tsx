@@ -10,7 +10,11 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-export default function Component() {
+export default function Component({
+  role
+}: {
+  role?: string
+}) {
   return (
     <div className="bg-[#000000] pt-3 pb-3 fixed top-0 right-0 w-full z-10">
       <div className="mx-auto px-4 flex justify-between items-center w-full">
@@ -18,7 +22,7 @@ export default function Component() {
           <MenuIcon className="text-white h-6 w-6" />
           <h1 className="ml-4 text-xl font-semibold text-white">码测</h1>
           <Badge className="ml-4 py-1 px-2 text-red-600 bg-white" variant="secondary">
-            系统角色: 我是学生
+            系统角色: 我是{ role || '学生' }
           </Badge>
         </div>
         <div className="flex items-center">

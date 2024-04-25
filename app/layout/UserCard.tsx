@@ -5,13 +5,19 @@
  */
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar"
 import { getUserInfo } from "@/sql/user/actions";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function UserCard() {
   const router = useRouter();
 
   const [user, setUser] = useState<any>({});
+
+  const path = usePathname();
+
+  console.log({
+    path
+  });
   
   useEffect(() => {
     getUserInfo().then(user => {
@@ -21,7 +27,7 @@ export default function UserCard() {
 
   return (
     <div className="flex items-center space-x-4 bg-white p-4 shadow mb-1 cursor-pointer" onClick={() => {
-      router.push('/student/profile');
+      router.push('./profile');
     }}>
       <Avatar>
         <AvatarImage alt="User profile picture" src={user.avatar_url || "/placeholder.svg?height=40&width=40"} />

@@ -1,212 +1,170 @@
-import React from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Button,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  Paper,
-  LinearProgress,
-} from '@mui/material';
-import SchoolIcon from '@mui/icons-material/School';
-import PendingActionsIcon from '@mui/icons-material/PendingActions';
-import QuizIcon from '@mui/icons-material/Quiz';
-import AnnouncementIcon from '@mui/icons-material/Announcement';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import InboxIcon from '@mui/icons-material/Inbox';
-import NotificationsCard from './view/NotificationsCard'
+'use client';
+/**
+ * v0 by Vercel.
+ * @see https://v0.dev/t/OzdkkgB435W
+ * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
+ */
+import { Button } from "@/components/ui/button"
+import { ResponsiveLine } from "@nivo/line"
+import { Calendar } from "@/components/ui/calendar"
+import { CardTitle, CardHeader, CardContent, Card } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 
-// 面板组件 - 最近活动
-const RecentActivityCard = () => {
-  const activities = [
-    {
-      id: 1,
-      content: '批改了《计算机科学导论》第一次作业。',
-      timestamp: '2小时前'
-    },
-    {
-      id: 2,
-      content: '发布了《数据库系统》新的课件。',
-      timestamp: '1天前'
-    },
-    {
-      id: 3,
-      content: '更新了考试安排时间。',
-      timestamp: '3天前'
-    }
-  ];
+/**
+ * v0 by Vercel.
+ * @see https://v0.dev/t/sMtW8rPSx0F
+ * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
+ */
+import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
+import TopNav from "../layout/TopNav";
 
+function RecentGrade() {
   return (
-    <Card sx={{ minHeight: 200 }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-          最近活动
-        </Typography>
-        <List>
-          {activities.map((activity) => (
-            <ListItem key={activity.id}>
-              <ListItemText primary={activity.content} secondary={activity.timestamp} />
-            </ListItem>
-          ))}
-        </List>
-      </CardContent>
-    </Card>
-  );
-};
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>科目</TableHead>
+          <TableHead>分数</TableHead>
+          <TableHead>日期</TableHead>
+          <TableHead>操作</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow>
+          <TableCell>数学</TableCell>
+          <TableCell className="text-green-500 font-semibold">95</TableCell>
+          <TableCell>2023-09-12</TableCell>
+          <TableCell>
+            <Button >查看详情</Button>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>科学</TableCell>
+          <TableCell className="text-blue-500 font-semibold">88</TableCell>
+          <TableCell >2023-09-12</TableCell>
+          <TableCell>
+            <Button >查看详情</Button>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>历史</TableCell>
+          <TableCell className="text-yellow-500 font-semibold">92</TableCell>
+          <TableCell >2023-09-12</TableCell>
+          <TableCell>
+            <Button >查看详情</Button>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>英语</TableCell>
+          <TableCell className="text-purple-500 font-semibold">85</TableCell>
+          <TableCell >2023-09-12</TableCell>
+          <TableCell>
+            <Button >查看详情</Button>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>艺术</TableCell>
+          <TableCell className="text-red-500 font-semibold">90</TableCell>
+          <TableCell >2023-09-12</TableCell>
+          <TableCell>
+            <Button >查看详情</Button>
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  )
+}
 
-// 面板组件 - 快速访问
-const QuickAccessCard = () => {
-  const links = [
-    { name: '作业审批', icon: <AssignmentTurnedInIcon />, destination: '/homework/approval' },
-    { name: '课程计划', icon: <CalendarTodayIcon />, destination: '/course/planning' },
-    { name: '消息中心', icon: <InboxIcon />, destination: '/messages' },
-  ];
-
+export default function Component() {
   return (
-    <Card sx={{ minHeight: 150 }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-          快速访问
-        </Typography>
-        <List>
-          {links.map((link, index) => (
-            <ListItem button key={index} component="a" href={link.destination}>
-              <ListItemIcon>{link.icon}</ListItemIcon>
-              <ListItemText primary={link.name} />
-            </ListItem>
-          ))}
-        </List>
-      </CardContent>
-    </Card>
-  );
-};
+    <div className="bg-white p-8">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold mb-2">即将开始的考试</h1>
+        <p className="text-sm text-gray-500 mb-4">考试时间：2024年02月25日 10:00 AM</p>
+        <p className="text-sm text-gray-500">考试倒计时 15 分钟结束</p>
+        <Button className="mt-4 bg-blue-600 text-white">开始考试</Button>
+      </div>
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">单门课程成绩走势分析</h2>
+        <LineChart className="w-full h-[300px]" />
+      </div>
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">最近考试</h2>
+        <RecentGrade />
+      </div>
+    </div>
+  )
+}
 
-// 面板组件 - 在线资源
-const OnlineResourcesCard = () => {
-  // 假设这是一个更复杂的组件，展示一些可点击的资源链接等
+function LineChart(props) {
   return (
-    <Card sx={{ minHeight: 150 }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-          在线资源
-        </Typography>
-        {/* 资源列表、链接或其他内容 */}
-      </CardContent>
-    </Card>
-  );
-};
-
-const TeacherDashboard = () => {
-  // 示例数据，实际开发时应从API获取
-  const coursesData = [
-    { name: '算法与数据结构', progress: 70 },
-    { name: '计算机网络', progress: 50 },
-    { name: '操作系统', progress: 85 },
-  ];
-
-  const tasksData = [
-    '检查第三章作业',
-    '制定下周考试题目',
-    '回复学生邮箱关于课程问题',
-  ];
-
-  const notificationsData = [
-    { id: 1, title: '系统更新', description: '在线考试系统将于今晚22:00进行维护', time: '1小时前' },
-    { id: 2, title: '新学生加入', description: '你的课程《算法与数据结构》有新学生加入', time: '3小时前' },
-    // ...更多通知
-  ];
-
-  return (
-    <Box sx={{ flexGrow: 1, m: 3 }}>
-      <Grid container spacing={3}>
-        {/* 欢迎信息及快速操作 */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h4" component="h1" gutterBottom>
-              欢迎回来，老师
-            </Typography>
-            <Button variant="outlined" sx={{ mr: 1 }}>
-              创建新课程
-            </Button>
-            <Button variant="outlined" color="primary">
-              发布新考试
-            </Button>
-          </Paper>
-        </Grid>
-        
-        {/* 课程进度 */}
-        <Grid item xs={12} md={6} lg={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h5" gutterBottom>
-                课程进度
-                <SchoolIcon sx={{ ml: 1 }} />
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <List>
-                {coursesData.map((course, index) => (
-                  <ListItem key={index}>
-                    <ListItemText primary={course.name} />
-                    <LinearProgress variant="determinate" value={course.progress} />
-                  </ListItem>
-                ))}
-              </List>
-            </CardContent>
-          </Card>
-        </Grid>
-        
-        {/* 待处理任务 */}
-        <Grid item xs={12} md={6} lg={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h5" gutterBottom>
-                待处理任务
-                <PendingActionsIcon sx={{ ml: 1 }} />
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <List>
-                {tasksData.map((task, index) => (
-                  <ListItem key={index}>
-                    <ListItemIcon>
-                      <QuizIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={task} />
-                  </ListItem>
-                ))}
-              </List>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* 最新通知 */}
-        <Grid item xs={12} md={6} lg={4}>
-          <NotificationsCard notifications={notificationsData} />
-        </Grid>
-      
-        {/* 最近活动面板 */}
-        <Grid item xs={12} md={6}>
-          <RecentActivityCard />
-        </Grid>
-
-        {/* 快速访问面板 */}
-        <Grid item xs={12} md={6}>
-          <QuickAccessCard />
-        </Grid>
-
-        {/* 在线资源面板 */}
-        <Grid item xs={12}>
-          <OnlineResourcesCard />
-        </Grid>
-      </Grid>
-    </Box>
-  );
-};
-
-export default TeacherDashboard;
+    <div {...props}>
+      <ResponsiveLine
+        data={[
+          {
+            id: "Desktop",
+            data: [
+              { x: "Jan", y: 43 },
+              { x: "Feb", y: 137 },
+              { x: "Mar", y: 61 },
+              { x: "Apr", y: 145 },
+              { x: "May", y: 26 },
+              { x: "Jun", y: 154 },
+            ],
+          },
+          {
+            id: "Mobile",
+            data: [
+              { x: "Jan", y: 60 },
+              { x: "Feb", y: 48 },
+              { x: "Mar", y: 177 },
+              { x: "Apr", y: 78 },
+              { x: "May", y: 96 },
+              { x: "Jun", y: 204 },
+            ],
+          },
+        ]}
+        margin={{ top: 10, right: 10, bottom: 40, left: 40 }}
+        xScale={{
+          type: "point",
+        }}
+        yScale={{
+          type: "linear",
+        }}
+        axisTop={null}
+        axisRight={null}
+        axisBottom={{
+          tickSize: 0,
+          tickPadding: 16,
+        }}
+        axisLeft={{
+          tickSize: 0,
+          tickValues: 5,
+          tickPadding: 16,
+        }}
+        colors={["#2563eb", "#e11d48"]}
+        pointSize={6}
+        useMesh={true}
+        gridYValues={6}
+        theme={{
+          tooltip: {
+            chip: {
+              borderRadius: "9999px",
+            },
+            container: {
+              fontSize: "12px",
+              textTransform: "capitalize",
+              borderRadius: "6px",
+            },
+          },
+          grid: {
+            line: {
+              stroke: "#f3f4f6",
+            },
+          },
+        }}
+        role="application"
+      />
+    </div>
+  )
+}

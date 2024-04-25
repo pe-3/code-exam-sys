@@ -148,6 +148,20 @@ export async function rollbackExamStatus({
   }
 }
 
+// 发布考试
+export async function publishExam({
+  ExamId,
+}: {
+  ExamId: number;
+}) {
+  const [res] = await updateExam({
+    ExamId: Number(ExamId),
+    Status: ExamStatus.NOT_STARTED
+  });
+
+  return res?.affectedRows === 1;
+}
+
 // 在线运行代码
 export async function runCode({
   code,

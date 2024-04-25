@@ -12,6 +12,7 @@ import { updateUserInfo } from "@/sql/user/actions";
 import { useToast } from "@chakra-ui/react";
 import UiToast, { EToastType } from "../auth/components/Toast";
 import { DatePickerDemo } from "../components/DatePicker";
+import { useSearchParams, useRouter } from "next/navigation";
 
 interface InfoItem {
   label: string;
@@ -69,14 +70,20 @@ export default function FormArea(
     user: UserModel | { [x:string]: any }
   }
 ) {
+  const params = useSearchParams();
+  const firstRegister =  params.get('first-register') === '1';
+
   const toast = useToast({
     duration: 3000,
     position: 'top-right',
   });
 
-  const [edit, setEdit] = useState(false);
+  const [edit, setEdit] = useState(firstRegister);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState(user.avatar_url || '/placeholder.svg');
   const [picPreviewUrl, setPicPreviewUrl] = useState(user.profile_picture_url || '/placeholder.svg');
+
+  const router = useRouter();
+
 
   const handleImageChange = (set: any) => async (e: any) => {
     const file = e.target.files[0];
@@ -110,6 +117,20 @@ export default function FormArea(
             )
           }
         });
+        if (firstRegister) {
+          router.push('/role');
+          toast({
+            render: () => (
+              <UiToast
+                title="选取角色"
+                description="请选择你的角色"
+                type={EToastType.Success}
+              />
+            )
+          });
+          return;
+        }
+
         window.location.reload();
       }
     } catch (err) {

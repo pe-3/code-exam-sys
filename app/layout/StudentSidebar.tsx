@@ -11,7 +11,25 @@ import Link from "next/link";
 import { ArrowUpIcon, CircleIcon, LayoutDashboardIcon, MailboxIcon, StarIcon, UserIcon, LogOutIcon } from "./icons";
 
 // 定义菜单项的配置数组
-const menuList = [
+const menuListForTeacher = [
+  {
+    name: '概览',
+    icon: LayoutDashboardIcon,
+    href: '/teacher',
+  },
+  {
+    name: '管理考试',
+    icon: ArrowUpIcon,
+    href: '/teacher/exam-list'
+  },
+  {
+    name: '个人信息',
+    icon: UserIcon,
+    href: '/teacher/profile'
+  }
+];
+
+const menuListForStudent = [
   {
     name: '概览',
     icon: LayoutDashboardIcon,
@@ -34,8 +52,14 @@ const menuList = [
   }
 ];
 
-export default function SideBar() {
+export default function SideBar({
+  forWhat
+}: {
+  forWhat?: 'student' | 'teacher'
+}) {
   const pathname = usePathname();
+
+  const menuList = forWhat !== 'teacher' ? menuListForStudent : menuListForTeacher;
 
   return (
     <div className="flex flex-col w-64 relative h-full border-r border-gray-100">
@@ -54,7 +78,7 @@ export default function SideBar() {
           </Link>
         ))}
       </div>
-      <div className="absolute inset-x-0 bottom-0">
+      <div className="absolute inset-x-0 bottom-0 cursor-pointer">
         <Link
           className="flex items-center justify-center px-4 py-3 text-sm font-medium bg-black text-white"
           href="/"

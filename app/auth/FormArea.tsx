@@ -10,6 +10,7 @@ import UiToast, { EToastType } from "./components/Toast";
 import { setTokenInCookie } from "../token";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { UserRole } from "@/sql/user/user.type";
 
 const FormArea = ({
   initDate
@@ -102,8 +103,7 @@ const FormArea = ({
     }
 
     if (!nickname) {
-      console.log('触发了');
-      router.push('/profile');
+      router.push('/profile?first-register=1');
       toast ({
         // 完善信息提示
         render: () => (
@@ -127,6 +127,14 @@ const FormArea = ({
           />
         )
       });
+
+      const rolePath = {
+        [UserRole.Student]: '/student',
+        [UserRole.Teacher]: '/teacher',
+        [UserRole.Admin]: '/admin',
+      }
+
+      router.push(rolePath[role]);
     }
   }
 
