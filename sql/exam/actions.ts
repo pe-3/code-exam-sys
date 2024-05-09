@@ -7,7 +7,7 @@ import { uploadFile } from '@/utils/upload';
 import { getItemInVisitor } from '@/storage';
 import { getTokenFromCookie } from '@/app/token';
 import { JwtPayload } from 'jsonwebtoken';
-import { getStudentExamResult, insertStudentExamResult } from '../exam-result/sql';
+import { getExamResultById, getStudentExamResult, insertStudentExamResult } from '../exam-result/sql';
 import { File } from 'buffer'
 
 // 定义zod模式，与ExamModel结构类似，但没有examId
@@ -35,6 +35,32 @@ export async function createExamByFormData(formData: FormData) {
     parsedData.StartTime = (Math.floor(new Date(parsedData.StartTime).getTime() / 1000));
     // 如果验证通过，调用之前定义的 createExam 函数
     const [res] = await createExam(parsedData);
+    return res?.affectedRows === 1;
+  } catch (error) {
+    // 如果解析或验证失败，则抛出错误
+    console.error(error);
+    throw new Error("Invalid exam data");
+  }
+}
+
+const ExamUpdateSchema = z.object({
+  ExamName: z.string().min(1),
+  Subject: z.string().min(1),
+  StartTime: z.string().min(1),
+  EndTime: z.string().min(1),
+  TotalScore: z.string().min(1),
+  ExamId: z.string()
+});
+
+// 修改 exam
+export async function updateExamByFormData(formData: FormData) {
+  try {
+    // 将formData转换为对象
+    // 使用zod模式解析和验证前端传递来的formData
+    const parsedData = pareseData(formData, ExamUpdateSchema);
+    parsedData.StartTime = (Math.floor(new Date(parsedData.StartTime).getTime() / 1000));
+    // 如果验证通过，调用之前定义的 createExam 函数
+    const [res] = await updateExam(parsedData);
     return res?.affectedRows === 1;
   } catch (error) {
     // 如果解析或验证失败，则抛出错误
@@ -162,6 +188,26 @@ export async function publishExam({
   return res?.affectedRows === 1;
 }
 
+// 开始考试
+export async function startExam({
+  ExamId,
+}: {
+  ExamId: number;
+}) {
+  try {
+    const [res] = await updateExam({
+      ExamId: Number(ExamId),
+      Status: ExamStatus.IN_PROGRESS
+    });
+
+    return res?.affectedRows === 1;
+  }
+  catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
 // 在线运行代码
 export async function runCode({
   code,
@@ -181,14 +227,13 @@ export async function runCode({
     });
 
     if (response.ok) {
-        const data = await response.json();
-        return  JSON.stringify(data.result);
+      const data = await response.json();
+      return  JSON.stringify(data.result);
     } else {
-        const error = await response.json();
-        return error.error;
+      const error = await response.text();
+      return error;
     }
   } catch (error: Error | any) {
-    console.error(error);
     return 'Network or other error: ' + error.message;
   }
 }
@@ -315,8 +360,9 @@ export async function examJudge({
     const isInserted = await insertStudentExamResult({
       studentId: Number(student_id),
       examId: ExamId,
-      examResult: ExamDetailLink
-    })
+      examResult: ExamDetailLink,
+      examScore: score
+    });
 
     if (!isInserted) {
       throw new Error('考试结果保存失败');
@@ -338,8 +384,10 @@ export async function examJudge({
 // 获取考试结果
 export async function getExamResult({
   ExamId,
+  ResultId
 }: {
   ExamId: number;
+  ResultId?: number
 }) {
   const salt = await getItemInVisitor('TOKEN_SALT');
   const tokenPayload = await getTokenFromCookie(salt);
@@ -348,7 +396,7 @@ export async function getExamResult({
     id: student_id
   } = (tokenPayload as JwtPayload) || {};
 
-  const res = await getStudentExamResult({
+  const res = ResultId ? await getExamResultById(ResultId) : await getStudentExamResult({
     ExamId,
     student_id
   });
@@ -360,8 +408,31 @@ export async function getExamResult({
       ExamResult
     } = lastExam;
 
+    // todo: 静态资源请求前缀路径
     const res = await fetch(`http://localhost:3000${ExamResult}`);
     const data = await res.json();
     return data;
+  }
+}
+
+
+
+// 结束考试
+export async function endExam({
+  ExamId,
+}: {
+  ExamId: number;
+}) {
+  try {
+    const [res] = await updateExam({
+      ExamId: Number(ExamId),
+      Status: ExamStatus.FINISHED
+    });
+
+    return res?.affectedRows === 1;
+  }
+  catch (err) {
+    console.log(err);
+    return false;
   }
 }

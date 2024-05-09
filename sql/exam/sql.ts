@@ -40,6 +40,8 @@ export interface ExamQueryParams {
   EndTime?: string;
   TotalScore?: string;
   Status?: ExamStatus | string;
+  CurrentTime?: string;
+  isBefore? : boolean;
 }
 
 // 根据查询模型查询数据
@@ -78,7 +80,18 @@ export async function queryExams(params: ExamQueryParams): Promise<ExamModel[]> 
     conditions.push('Status = ?');
     values.push(params.Status);
   }
+  // 最近时间查询
+  if (params.CurrentTime) {
+    const symbol = params.isBefore ? '<=' : '>=';
 
+    // 1. 查询语句
+    conditions.push(`StartTime ${symbol} ?`);
+
+    // 2. 查询值
+    const CurrentDate = new Date(params.CurrentTime);
+    const CurrentSeconds = Math.floor(CurrentDate.getTime() / 1000).toFixed().toString();
+    values.push(CurrentSeconds);
+  }
   // 如果存在条件，追加到SQL语句中
   if (conditions.length > 0) {
     sql += ' WHERE ' + conditions.join(' AND ');
@@ -90,4 +103,45 @@ export async function queryExams(params: ExamQueryParams): Promise<ExamModel[]> 
   // 执行查询
   const [rows] = await pool.execute<RowDataPacket[]>(sql, values);
   return rows as ExamModel[];
+}
+
+// 获取即将进行的考试
+export async function getComingExam(): Promise<ExamModel> {
+  const currentDate = new Date();
+  const Exams = await queryExams({
+    CurrentTime: currentDate.toString()
+  });
+
+  return Exams[Exams.length - 1];
+}
+
+
+// 获取最近的考试
+export async function getComingExams(): Promise<ExamModel[]> {
+  const currentDate = new Date();
+  const Exams = await queryExams({
+    CurrentTime: currentDate.toString()
+  });
+
+  return Exams;
+}
+
+// 获取过往的考试
+export async function getPastExams(): Promise<ExamModel[]> {
+  const currentDate = new Date();
+  const Exams = await queryExams({
+    CurrentTime: currentDate.toString(),
+    isBefore: true
+  });
+
+  return Exams;
+}
+
+// 获取正在进行的考试
+export async function getCurrentExam(): Promise<ExamModel> {
+  const Exams = await queryExams({
+    Status: ExamStatus.IN_PROGRESS,
+  });
+
+  return Exams[Exams.length - 1];
 }

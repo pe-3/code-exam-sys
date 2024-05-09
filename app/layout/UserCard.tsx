@@ -15,10 +15,6 @@ export default function UserCard() {
 
   const path = usePathname();
 
-  console.log({
-    path
-  });
-  
   useEffect(() => {
     getUserInfo().then(user => {
       setUser(user);
@@ -27,7 +23,11 @@ export default function UserCard() {
 
   return (
     <div className="flex items-center space-x-4 bg-white p-4 shadow mb-1 cursor-pointer" onClick={() => {
-      router.push('./profile');
+      if (path.includes('/teacher')) {
+        router.push('/teacher/profile');
+      } else if (path.includes('/student')) {
+        router.push('/student/profile');
+      }
     }}>
       <Avatar>
         <AvatarImage alt="User profile picture" src={user.avatar_url || "/placeholder.svg?height=40&width=40"} />

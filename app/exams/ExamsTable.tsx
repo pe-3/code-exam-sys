@@ -6,7 +6,7 @@ import { ExamModel, ExamStatus, ExamStatusColors, ExamStatusDescriptions } from 
 import moment from 'moment'
 import Link from "next/link";
 import { ExamEditor } from "./ExamEditor";
-import { publishExam, rollbackExamStatus } from "@/sql/exam/actions";
+import { endExam, publishExam, rollbackExamStatus } from "@/sql/exam/actions";
 import { useToast } from "@chakra-ui/react";
 import UiToast, { EToastType } from "../auth/components/Toast";
 
@@ -71,18 +71,59 @@ export const ExamStatusButton: { [key in ExamStatus]: React.FC<any> } = {
       <Button variant='secondary' size='sm'>查看</Button>
     </Link>
   ),
-  [ExamStatus.IN_PROGRESS]: () => (
-    <Button variant='default' size='sm'>考试</Button>
+  [ExamStatus.IN_PROGRESS]: ({
+    ExamId,
+    ExamName,
+    toast
+  }) => (
+    <>
+      <Button variant='default' size='sm' onClick={() => {
+        window.location.href = `/in-exam?ExamId=${ExamId}&ExamName=${ExamName}`
+      }}>监考</Button>
+      <Button className="ml-4" variant='destructive' size='sm' onClick={async () => {
+        const isEndOk = await endExam({
+          ExamId: Number(ExamId)
+        });
+
+        if (!isEndOk) {
+          toast({
+            render: () => (
+              <UiToast
+                title="结束失败"
+                description="请稍后重试"
+                type={EToastType.Error}
+              />
+            )
+          });
+        } else {
+          toast({
+            render: () => (
+              <UiToast
+                title="结束成功"
+                description="考试已结束"
+                type={EToastType.Success}
+              />
+            )
+          });
+          window.location.reload();
+        }
+      }}>结束</Button>
+    </>
   ),
-  [ExamStatus.FINISHED]: () => (
+  [ExamStatus.FINISHED]: ({
+    ExamId,
+    ExamName,
+  }) => (
     <Button variant='outline' size='sm'>阅卷</Button>
   )
 };
 
 export default function ExamsTable({
-  exams
+  exams,
+  forStudent
 }: {
   exams: ExamModel[];
+  forStudent?: boolean;
 }) {
   const toast = useToast({
     duration: 3000,
@@ -100,7 +141,7 @@ export default function ExamsTable({
             <TableHead>时长</TableHead>
             <TableHead>总分</TableHead>
             <TableHead>状态</TableHead>
-            <TableHead>操作</TableHead>
+            {forStudent || <TableHead>操作</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -112,8 +153,8 @@ export default function ExamsTable({
               <TableCell>{exam.EndTime}</TableCell>
               <TableCell>{exam.TotalScore}</TableCell>
               <TableCell style={{ color: ExamStatusColors[exam.Status] }}>{ExamStatusDescriptions[exam.Status]}</TableCell>
-              <TableCell>
-                <ExamEditor exam={exam}>
+              {forStudent || <TableCell>
+                <ExamEditor exam={exam} justChange>
                   <Button size='sm' variant="outline" className="mr-4">✍️</Button>
                 </ExamEditor>
                 <Button
@@ -146,7 +187,7 @@ export default function ExamsTable({
                   ExamName: exam.ExamName,
                   toast
                 })}
-              </TableCell>
+              </TableCell>}
             </TableRow>
           ))}
         </TableBody>

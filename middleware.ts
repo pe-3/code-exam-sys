@@ -1,9 +1,11 @@
 import type { NextRequest } from 'next/server'
- 
-export function middleware(request: NextRequest) {
-  const currentUser = request.cookies.get('TOKEN_KEY')?.value;
 
-  if (!currentUser && !request.nextUrl.pathname.startsWith('/auth')) {
+export function middleware(request: NextRequest) {
+  const currentUserToken = request.cookies.get('TOKEN_KEY')?.value;
+
+  const pathname = request.nextUrl.pathname;
+
+  if (!currentUserToken && !pathname.startsWith('/auth')) {
     return Response.redirect(new URL('/auth?expired=true', request.url))
   }
 }

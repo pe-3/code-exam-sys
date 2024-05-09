@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
-import { createExamByFormData } from "@/sql/exam/actions";
+import { createExamByFormData, updateExamByFormData } from "@/sql/exam/actions";
 import { useToast } from "@chakra-ui/react";
 import { forwardRef, useRef, useState } from "react";
 import UiToast, { EToastType } from "../auth/components/Toast";
@@ -22,10 +22,12 @@ import { ExamModel } from "@/sql/exam/exam.type";
 
 export function ExamEditor({
   children,
-  exam
+  exam,
+  justChange
 }: {
   children?: React.ReactNode;
-  exam?: ExamModel
+  exam?: ExamModel,
+  justChange?: boolean
 }) {
   const [open, setOpen] = useState(false);
   const openDialog = (e: any) => {
@@ -80,6 +82,48 @@ export function ExamEditor({
     }
   }
 
+  const handleChange = async () => {
+    const formData = new FormData(form.current);
+    formData.append('ExamId', exam.ExamId)
+    try {
+      const isAffected = await updateExamByFormData(formData);
+      if (isAffected) {
+        closeDialog();
+        toast({
+          render() {
+            return <UiToast
+              title="更新成功"
+              description="考试配置已更新"
+              type={EToastType.Success}
+            />
+          }
+        });
+        window.location.reload();
+      } else {
+        toast({
+          render() {
+            return <UiToast
+              title="更新失败"
+              description="请检查表单是否填写完整"
+              type={EToastType.Error}
+            />
+          }
+        })
+      }
+    }
+    catch (err) {
+      toast({
+        render() {
+          return <UiToast 
+            title="出错了"
+            description="啊啊啊啊啊啊，怎么办怎么办"
+            type={EToastType.Error} 
+          />
+        }
+      })
+    }
+  }
+
   return (
     <AlertDialog open={open}>
       <AlertDialogTrigger asChild>
@@ -96,7 +140,7 @@ export function ExamEditor({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={closeDialog}>取消</AlertDialogCancel>
-          <AlertDialogAction onClick={handleSubimt}>发布</AlertDialogAction>
+          {justChange ? <AlertDialogAction onClick={handleChange}>修改</AlertDialogAction> : <AlertDialogAction onClick={handleSubimt}>发布</AlertDialogAction>}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

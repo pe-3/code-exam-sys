@@ -8,7 +8,7 @@ import { queryExamByQuery } from "@/sql/exam/actions";
 import { useRef } from "react";
 
 export default async function Component({ searchParams } : {
-  searchParams: ExamQueryParams
+  searchParams: ExamQueryParams,
 }) {
   let examsByQuery = await queryExamByQuery(searchParams);
 

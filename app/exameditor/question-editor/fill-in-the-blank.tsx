@@ -12,7 +12,12 @@ const FillInTheBlank = forwardRef(function FillInTheBlank({
   return (
     <div className="space-y-4 mb-4 w-full">
       <div className="space-y-4">
-        <Textarea defaultValue={init} className="min-h-[100px]" placeholder="编辑填空题，*** (三位) 表示填空位。" ref={ref} />
+        <Textarea
+          defaultValue={init}
+          className="min-h-[100px]"
+          placeholder="编辑填空题，*** (三位) 表示填空位。"
+          ref={ref}
+        />
       </div>
     </div>
   )

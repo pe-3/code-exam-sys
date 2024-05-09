@@ -12,12 +12,18 @@ import { Button } from "@/components/ui/button"
 import { ExamStatusDescriptions } from "@/sql/exam/exam.type"
 import { ExamQueryParams } from "@/sql/exam/sql"
 import { forwardRef } from "react";
+import { usePathname } from "next/navigation";
+import path from "path";
 
 const Filter = forwardRef(function ExamsFilter({
-  searchParams
+  searchParams,
+  forStudent
 }: {
-  searchParams: ExamQueryParams
+  searchParams: ExamQueryParams;
+  forStudent?: boolean;
 }, ref) {
+  const pathname = usePathname();
+
   return (
     <form className="w-full mx-auto space-y-4">
       <div className="flex flex-wrap items-center gap-4">
@@ -48,9 +54,12 @@ const Filter = forwardRef(function ExamsFilter({
         <Button variant='outline'>查询</Button>
         <Button variant='secondary' onClick={(e) => {
           e.preventDefault();
+          if (pathname.startsWith('/student')) {
+            return window.location.href = '/student/exam-list'
+          } 
           window.location.href = '/teacher/exam-list';
         }}>重置</Button>
-        <ExamEditor ref={ref} />
+        {forStudent || <ExamEditor ref={ref} />}
       </div>
     </form>
   )

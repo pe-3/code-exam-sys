@@ -19,6 +19,10 @@ import { Input } from "@/components/ui/input";
 import { examJudge, getExamDetail, getExamResult, saveExamDetail } from "@/sql/exam/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import ProgramIdeModal from "./question-editor/program-ide";
+import { getTokenFromCookie } from "@/app/token";
+import { getItemInVisitor } from "@/storage";
+import { UserModel, UserRole } from "@/sql/user/user.type";
+import MarkdownEditor from "@/components/ui/md-editor";
 
 function scoreToColor(score: number) {
   // 确保分数在合法范围内
@@ -150,7 +154,8 @@ const ProgramItem = ({ programStr, index, answerDetail, rerender, afterExam } : 
 
   return (
     <div className="w-full">
-      {programStr}
+      {/* {programStr} */}
+      <MarkdownEditor initialValue={programStr} onlyViewer className="w-1/3" />
       {afterExam ?<div className="text-yellow-500 my-2">
         结果: {answerDetail[index] || '暂无'}
       </div>: <div className="text-yellow-500 my-2">
@@ -233,6 +238,8 @@ export default function Component({
     position: 'top-right',
   });
 
+
+  // 1. 题目详情
   const [choices] = useState<any[]>([]);
   const [choicesEdit] = useState<any[]>([]);
   const [choicesEditRef] = useState<any[]>([]);
@@ -390,6 +397,7 @@ export default function Component({
   const scoreDetail = examResult.scoreDetail?.split(',') || [];
 
 
+  // 2. 获取考试详情
   useEffect(() => {
     getExamDetail({
       ExamId: search.get('ExamId') as string,
@@ -416,6 +424,7 @@ export default function Component({
       if (afterExam) {
         getExamResult({
           ExamId: Number(search.get('ExamId') as string),
+          ResultId: Number(search.get('ResultId') as string)
         }).then(lastestExam => {
           Object.assign(examResult, lastestExam);
 
@@ -442,7 +451,7 @@ export default function Component({
 
   }, []);
 
-  // 考试详情最后数据对象
+  // 3. 考试详情最后数据对象
   const currentDetail = {
     choices,
     choiceTotal: choiceTotal.current,
@@ -460,6 +469,7 @@ export default function Component({
     programsAnswer: programsAnswer
   }
 
+  // 4. 保存编辑好的考试
   const save = async () => {
     try {
       // 判断题目个数是否足够
@@ -474,7 +484,7 @@ export default function Component({
                 <div>
                   {choices.length < 5 && '选择题不少于 5'}<br/><br/>
                   {blanks.length < 5 && '填空题不少于 5'}<br/><br/>
-                  {shorts.length < 4 && '简单题不少于 4'}<br/><br/>
+                  {shorts.length < 4 && '简答题不少于 4'}<br/><br/>
                   {programs.length < 2 && '编程题不少于 2'}
                 </div>
               }
@@ -518,7 +528,7 @@ export default function Component({
             />
           )
         });
-        router.push('/exams');
+        router.push('/teacher/exam-list');
       } else {
         toast({
           render: () => (
@@ -545,8 +555,8 @@ export default function Component({
     }
   }
 
+  // 5. 判断是否有对应的考试
   const ExamName = search.get('ExamName') || '';
-
   useEffect(() => {
     if (!search.get('ExamId')) {
       toast({
@@ -559,12 +569,13 @@ export default function Component({
         )
       });
       setTimeout(() => {
-       router.push('/exams'); 
+       router.push('/teacher/exam-list'); 
       });
       return;
     }
   }, []);
 
+  // 6. 提交试卷
   const submitExam = async () => {
     const answer = {
       choices: choicesAnswer,
@@ -890,6 +901,19 @@ export default function Component({
               inExam && <div className="flex justify-end">
                 <Button onClick={submitExam}>交卷</Button>
               </div>
+            }
+            {
+              afterExam && <div className="flex justify-end">
+              <Button variant="secondary" onClick={async () => {
+                const salt = await getItemInVisitor('TOKEN_SALT');
+                const user = await getTokenFromCookie(salt) as UserModel;
+                if (user.role === UserRole.Student) {
+                  router.push('/student');
+                } else if (user.role === UserRole.Teacher) {
+                  router.push('/teacher');
+                }
+              }}>返回主页</Button>
+            </div>
             }
           </div>
         </div>
