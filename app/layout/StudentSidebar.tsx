@@ -23,6 +23,11 @@ const menuListForTeacher = [
     href: '/teacher/exam-list'
   },
   {
+    name: '学生成绩',
+    icon: CircleIcon,
+    href: '/teacher/mark-exam'
+  },
+  {
     name: '个人信息',
     icon: UserIcon,
     href: '/teacher/profile'

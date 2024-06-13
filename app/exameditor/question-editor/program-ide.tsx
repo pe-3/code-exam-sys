@@ -13,6 +13,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import MarkdownEditor from "@/components/ui/md-editor";
 import { useState } from "react";
 
 export default function ProgramIdeModal({
@@ -68,7 +69,8 @@ const ProgramIde = ({
           <div className="flex-1 p-6 overflow-y-auto h-full relative">
             <h3 className="text-4xl font-semibold text-gray-900 mb-4">题目描述</h3>
             <div className="whitespace-pre-wrap text-gray-800">
-              {ProgarmDetail}
+              {/* {ProgarmDetail} */}
+              <MarkdownEditor initialValue={ProgarmDetail} onlyViewer className="w-1/3" />
             </div>
             <div className="text-yellow-500">
               结果: {result || '暂无'}
